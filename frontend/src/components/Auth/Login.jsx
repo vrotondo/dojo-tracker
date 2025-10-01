@@ -26,6 +26,7 @@ function Login() {
 
         try {
             const data = await login(formData);
+            console.log('Login response:', data); // Debug log
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('user', JSON.stringify(data.user));
             navigate('/dashboard');

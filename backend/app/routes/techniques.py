@@ -1,13 +1,23 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
+from jwt.exceptions import PyJWTError
 from app.models import db
 from app.models.technique import Technique
 
 techniques_bp = Blueprint('techniques', __name__)
 
-@techniques_bp.route('/', methods=['GET'])
-@jwt_required()
+@techniques_bp.route('/', methods=['GET', 'OPTIONS'])
 def get_techniques():
+    # Handle preflight
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    # Verify JWT manually to avoid redirect issues
+    try:
+        verify_jwt_in_request()
+    except Exception as e:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
     # Optional filters
     style = request.args.get('style')
     difficulty = request.args.get('difficulty')
@@ -25,9 +35,16 @@ def get_techniques():
         'techniques': [t.to_dict() for t in techniques]
     }), 200
 
-@techniques_bp.route('/<int:technique_id>', methods=['GET'])
-@jwt_required()
+@techniques_bp.route('/<int:technique_id>', methods=['GET', 'OPTIONS'])
 def get_technique(technique_id):
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    try:
+        verify_jwt_in_request()
+    except Exception as e:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
     technique = Technique.query.get(technique_id)
     
     if not technique:
@@ -36,8 +53,12 @@ def get_technique(technique_id):
     return jsonify({'technique': technique.to_dict()}), 200
 
 @techniques_bp.route('/', methods=['POST'])
-@jwt_required()
 def create_technique():
+    try:
+        verify_jwt_in_request()
+    except Exception as e:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
     data = request.get_json()
     
     # Validation

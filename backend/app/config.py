@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    # Database - PostgreSQL
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    # Database - SQLite (no setup needed!)
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///dojotracker.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT

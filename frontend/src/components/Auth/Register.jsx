@@ -44,6 +44,7 @@ function Register() {
                 email: formData.email,
                 password: formData.password,
             });
+            console.log('Register response:', data); // Debug log
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('user', JSON.stringify(data.user));
             navigate('/dashboard');
