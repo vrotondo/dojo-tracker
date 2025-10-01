@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     # Database - PostgreSQL
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://postgres:LazerDog%4091%21@localhost:5434/dojotracker')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT
