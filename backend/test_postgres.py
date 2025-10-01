@@ -7,7 +7,7 @@ try:
         port="5434",  # Your port
         database="postgres",  # Default database
         user="postgres",
-        password="LazerDog@91!"  # Replace with your actual password
+        password="LazerDog@91!"  # Replace with your actual password / encoded: LazerDog%4091%21
     )
     print("✅ PostgreSQL connection successful!")
     print(f"PostgreSQL version: {conn.server_version}")
