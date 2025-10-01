@@ -27,8 +27,8 @@ def register():
     db.session.add(user)
     db.session.commit()
     
-    # Create access token
-    access_token = create_access_token(identity=user.id)
+    # Create access token - CONVERT ID TO STRING
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'message': 'User registered successfully',
@@ -50,8 +50,8 @@ def login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid username or password'}), 401
     
-    # Create access token
-    access_token = create_access_token(identity=user.id)
+    # Create access token - CONVERT ID TO STRING
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'message': 'Login successful',
@@ -62,7 +62,7 @@ def login():
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert back to int when retrieving
     user = User.query.get(user_id)
     
     if not user:
