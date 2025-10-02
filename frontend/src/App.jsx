@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Dashboard from './pages/Dashboard';
+import TechniqueDetail from './pages/TechniqueDetail';
 import './App.css';
 
 // Protected Route Component
@@ -21,6 +22,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/technique/:id"
+          element={
+            <ProtectedRoute>
+              <TechniqueDetail />
             </ProtectedRoute>
           }
         />

@@ -36,11 +36,6 @@ function Dashboard() {
         navigate('/login');
     };
 
-    const handleTechniqueSelect = (technique) => {
-        console.log('Selected technique:', technique);
-        // TODO: Navigate to practice page
-    };
-
     const filteredTechniques = techniques.filter((tech) => {
         if (filter.style && tech.style !== filter.style) return false;
         if (filter.difficulty && tech.difficulty !== filter.difficulty) return false;
@@ -102,7 +97,6 @@ function Dashboard() {
                             <TechniqueCard
                                 key={technique.id}
                                 technique={technique}
-                                onSelect={handleTechniqueSelect}
                             />
                         ))}
                     </div>
