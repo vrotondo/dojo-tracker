@@ -60,5 +60,12 @@ def create_app():
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(techniques_bp, url_prefix='/api/techniques')
+
+    try:
+        from app.routes.training import training_bp
+        app.register_blueprint(training_bp, url_prefix='/api/training')
+        print("✅ Training blueprint registered at /api/training")
+    except ImportError as e:
+        print(f"❌ Failed to import training blueprint: {e}")
     
     return app

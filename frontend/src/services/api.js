@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api';  // ✅ CORRECT: Your backend is on 5000
 
-// Create axios instance
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -10,23 +9,31 @@ const api = axios.create({
     },
 });
 
-// Add token to requests if it exists
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        console.log('Token from localStorage:', token ? 'EXISTS' : 'MISSING'); // Debug
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log('Added Authorization header'); // Debug
         }
         return config;
     },
+    (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+    (response) => response,
     (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
+        }
         return Promise.reject(error);
     }
 );
 
-// Auth APIs
 const register = async (userData) => {
     const response = await api.post('/auth/register', userData);
     return response.data;
@@ -42,7 +49,6 @@ const getCurrentUser = async () => {
     return response.data;
 };
 
-// Technique APIs
 const getTechniques = async (filters = {}) => {
     const params = new URLSearchParams(filters);
     const response = await api.get(`/techniques?${params}`);
@@ -59,7 +65,5 @@ const createTechnique = async (techniqueData) => {
     return response.data;
 };
 
-// Export all functions
 export { register, login, getCurrentUser, getTechniques, getTechnique, createTechnique };
-
 export default api;

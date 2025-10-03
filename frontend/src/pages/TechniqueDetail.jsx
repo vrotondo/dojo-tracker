@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTechnique } from '../services/api';
+import VideoRecorder from '../components/VideoRecorder/VideoRecorder';
 import './TechniqueDetail.css';
 
 function TechniqueDetail() {
@@ -9,41 +9,100 @@ function TechniqueDetail() {
     const [technique, setTechnique] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showRecorder, setShowRecorder] = useState(false);
+    const [userVideos, setUserVideos] = useState([]);
+    const [loadingVideos, setLoadingVideos] = useState(false);
 
     useEffect(() => {
         fetchTechnique();
+        fetchUserVideos();
     }, [id]);
 
     const fetchTechnique = async () => {
         try {
             setLoading(true);
-            const data = await getTechnique(id);
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`http://localhost:5000/api/techniques/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch technique');
+            }
+
+            const data = await response.json();
             setTechnique(data.technique);
+            setError(null);
         } catch (err) {
-            setError('Failed to load technique');
-            console.error('Error fetching technique:', err);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const getDifficultyColor = (difficulty) => {
-        switch (difficulty) {
-            case 'Beginner':
-                return '#4caf50';
-            case 'Intermediate':
-                return '#ff9800';
-            case 'Advanced':
-                return '#f44336';
-            default:
-                return '#999';
+    const fetchUserVideos = async () => {
+        try {
+            setLoadingVideos(true);
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(
+                `http://localhost:5000/api/training/videos?limit=10`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                // Filter videos for this technique
+                const filteredVideos = data.videos.filter(
+                    video => video.technique_name === technique?.name
+                );
+                setUserVideos(filteredVideos);
+            }
+        } catch (err) {
+            console.error('Failed to fetch videos:', err);
+        } finally {
+            setLoadingVideos(false);
         }
+    };
+
+    const handleVideoUploadSuccess = (video) => {
+        setShowRecorder(false);
+        // Refresh the videos list
+        fetchUserVideos();
+        // Show success message
+        alert(`Video uploaded successfully! Your ${technique.name} practice has been saved.`);
+    };
+
+    const getDifficultyColor = (difficulty) => {
+        const colors = {
+            'Beginner': '#10b981',
+            'Intermediate': '#f59e0b',
+            'Advanced': '#ef4444',
+            'Expert': '#8b5cf6'
+        };
+        return colors[difficulty] || '#6b7280';
     };
 
     const getVideoId = (url) => {
         if (!url) return null;
         const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
         return match ? match[1] : null;
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     };
 
     if (loading) {
@@ -115,23 +174,63 @@ function TechniqueDetail() {
                     </div>
 
                     <div className="action-section">
-                        <button className="practice-btn-large">
+                        <button
+                            className="practice-btn-large"
+                            onClick={() => setShowRecorder(true)}
+                        >
                             📹 Record Your Attempt
                         </button>
                         <p className="practice-hint">
-                            Record yourself performing this technique to get AI feedback
+                            Record yourself performing this technique to track your progress
                         </p>
                     </div>
 
                     <div className="history-section">
                         <h2>Your Previous Attempts</h2>
-                        <div className="no-attempts">
-                            <p>You haven't practiced this technique yet.</p>
-                            <p>Record your first attempt to start tracking your progress!</p>
-                        </div>
+                        {loadingVideos ? (
+                            <div className="loading-videos">Loading your videos...</div>
+                        ) : userVideos.length > 0 ? (
+                            <div className="video-history-grid">
+                                {userVideos.map((video) => (
+                                    <div key={video.id} className="video-history-card">
+                                        <div className="video-thumbnail">
+                                            <span className="play-icon">▶</span>
+                                        </div>
+                                        <div className="video-info">
+                                            <h4>{video.title}</h4>
+                                            <p className="video-date">
+                                                {formatDate(video.created_at)}
+                                            </p>
+                                            {video.analysis_status && (
+                                                <span className={`analysis-badge ${video.analysis_status}`}>
+                                                    {video.analysis_status === 'completed' && '✓ Analyzed'}
+                                                    {video.analysis_status === 'pending' && '⏳ Pending'}
+                                                    {video.analysis_status === 'processing' && '⚙️ Processing'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="no-attempts">
+                                <p>You haven't practiced this technique yet.</p>
+                                <p>Record your first attempt to start tracking your progress!</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {showRecorder && (
+                <VideoRecorder
+                    techniqueId={technique.id}
+                    techniqueName={technique.name}
+                    techniqueStyle={technique.style}
+                    onClose={() => setShowRecorder(false)}
+                    onSuccess={handleVideoUploadSuccess}
+                />
+            )}
         </div>
     );
 }
