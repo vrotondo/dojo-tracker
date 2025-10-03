@@ -15,7 +15,7 @@ def get_techniques():
     try:
         print(">>> Attempting JWT verification...")
         verify_jwt_in_request()
-        user_id = int(get_jwt_identity())  # Convert to int
+        user_id = int(get_jwt_identity())
         print(f">>> JWT verified successfully for user {user_id}")
     except Exception as e:
         print(f">>> JWT verification failed: {type(e).__name__}: {str(e)}")
@@ -38,4 +38,21 @@ def get_techniques():
         'techniques': [t.to_dict() for t in techniques]
     }), 200
 
-# Update other routes similarly...
+@techniques_bp.route('/<int:technique_id>', methods=['GET', 'OPTIONS'])
+def get_technique(technique_id):
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    try:
+        verify_jwt_in_request()
+        user_id = int(get_jwt_identity())
+    except Exception as e:
+        print(f">>> JWT verification failed: {type(e).__name__}: {str(e)}")
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    technique = Technique.query.get(technique_id)
+    
+    if not technique:
+        return jsonify({'error': 'Technique not found'}), 404
+    
+    return jsonify({'technique': technique.to_dict()}), 200

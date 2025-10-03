@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, request
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from app.config import Config
 from app.models import db
+from flask import jsonify
 
 jwt = JWTManager()
 
@@ -12,21 +13,23 @@ def create_app():
     
     # Disable strict slashes to prevent 308 redirects
     app.url_map.strict_slashes = False
-
+    
+    # Log all requests
+    @app.before_request
+    def log_request():
+        print(f">>> Incoming {request.method} request to {request.path}")
+        print(f">>> Headers: {dict(request.headers)}")
+    
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
     
-    # CORS configuration - must be very permissive for development
-    CORS(app)
+    # CORS configuration - ONLY THIS LINE
+    CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
     
-    # Add CORS headers to all responses
     @app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        print(f">>> Responding with status {response.status_code}")
         return response
     
     # Handle JWT errors without redirects
