@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VideoRecorder from '../components/VideoRecorder/VideoRecorder';
 import techniqueService from '../services/techniqueService';
@@ -18,14 +18,20 @@ function TechniqueDetail() {
 
     useEffect(() => {
         loadTechniqueDetails();
-        loadUserVideos();
     }, [id]);
+
+    useEffect(() => {
+        if (technique) {
+            loadUserVideos();
+        }
+    }, [technique]);
 
     const loadTechniqueDetails = async () => {
         try {
             setLoading(true);
             const data = await techniqueService.getTechniqueById(id);
             setTechnique(data.technique);
+            setError('');
         } catch (error) {
             console.error('Failed to load technique:', error);
             setError('Failed to load technique details');
@@ -37,20 +43,17 @@ function TechniqueDetail() {
     const loadUserVideos = async () => {
         try {
             setLoadingVideos(true);
+            const response = await trainingService.getVideos();
 
-            // Get the technique first to know its name
-            const techData = await techniqueService.getTechniqueById(id);
-            const techniqueName = techData.technique.name;
+            // Filter videos for this technique
+            const filtered = response.videos.filter(
+                video => video.technique_name === technique.name ||
+                    video.technique_id === parseInt(id)
+            );
 
-            // Fetch videos filtered by technique name
-            const response = await trainingService.getVideos({
-                technique_name: techniqueName
-            });
-
-            setUserVideos(response.videos || []);
+            setUserVideos(filtered);
         } catch (error) {
             console.error('Failed to load user videos:', error);
-            // Don't show error to user - just show empty state
             setUserVideos([]);
         } finally {
             setLoadingVideos(false);
@@ -60,17 +63,23 @@ function TechniqueDetail() {
     const handleVideoUploadSuccess = (uploadedVideo) => {
         console.log('Video uploaded successfully:', uploadedVideo);
         setShowRecorder(false);
-
-        // Reload videos to show the new upload
         loadUserVideos();
-
-        // Show success message
         alert(`Success! Your ${technique.name} practice has been saved.`);
     };
 
-    const handleVideoClick = (video) => {
-        // Navigate to dedicated video player page
-        navigate(`/video/${video.id}`);
+    const handleDeleteVideo = async (videoId) => {
+        if (!window.confirm('Are you sure you want to delete this video?')) {
+            return;
+        }
+
+        try {
+            await trainingService.deleteVideo(videoId);
+            alert('Video deleted successfully');
+            loadUserVideos();
+        } catch (error) {
+            console.error('Failed to delete video:', error);
+            alert('Failed to delete video');
+        }
     };
 
     const getDifficultyColor = (difficulty) => {
@@ -182,18 +191,12 @@ function TechniqueDetail() {
                         <h2>Your Previous Attempts</h2>
                         {loadingVideos ? (
                             <div className="loading-videos">
-                                <div className="spinner"></div>
                                 <p>Loading your videos...</p>
                             </div>
                         ) : userVideos.length > 0 ? (
                             <div className="video-history-grid">
                                 {userVideos.map((video) => (
-                                    <div
-                                        key={video.id}
-                                        className="video-history-card"
-                                        onClick={() => handleVideoClick(video)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
+                                    <div key={video.id} className="video-history-card">
                                         <div className="video-thumbnail">
                                             <span className="play-icon">▶</span>
                                         </div>
@@ -209,6 +212,15 @@ function TechniqueDetail() {
                                                     {video.analysis_status === 'processing' && '⚙️ Processing'}
                                                 </span>
                                             )}
+                                            <div className="video-actions">
+                                                <button
+                                                    className="video-action-btn delete"
+                                                    onClick={() => handleDeleteVideo(video.id)}
+                                                    title="Delete video"
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

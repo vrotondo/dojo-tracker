@@ -1,22 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
 
 // Auth Components
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
 
 // Main Pages
 import Dashboard from './pages/Dashboard';
 import TechniqueDetail from './pages/TechniqueDetail';
-import Training from './pages/Training';
-import Exercises from './pages/Exercises';
-import Workouts from './pages/Workouts';
-import Profile from './pages/Profile';
-import VideoPlayerPage from './pages/VideoPlayerPage';
-
-// Layout
-import Layout from './components/layout/Layout';
 
 import './App.css';
 
@@ -28,36 +19,38 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes with Layout */}
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Routes>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/technique/:id" element={<TechniqueDetail />} />
-                    <Route path="/training" element={<Training />} />
-                    <Route path="/exercises" element={<Exercises />} />
-                    <Route path="/workouts" element={<Workouts />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/video/:videoId" element={<VideoPlayerPage />} />
-                    <Route path="/" element={<Navigate to="/dashboard" />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/technique/:id"
+          element={
+            <ProtectedRoute>
+              <TechniqueDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+
+        {/* Catch-all redirect to dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    </Router>
   );
 }
 

@@ -50,6 +50,7 @@ def create_app():
         from app.models.user import User
         from app.models.technique import Technique
         from app.models.analysis import VideoAnalysis
+        from app.models.training_video import TrainingVideo
         
         # Create tables
         db.create_all()
