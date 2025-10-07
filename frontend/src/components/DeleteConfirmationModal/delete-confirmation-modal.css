@@ -1,0 +1,105 @@
+/* src/styles/components/delete-confirmation-modal.css */
+
+.delete-modal-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.delete-confirmation-modal {
+    width: 90%;
+    max-width: 450px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.delete-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    background: #fee2e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc2626;
+}
+
+.delete-modal-icon svg {
+    width: 36px;
+    height: 36px;
+}
+
+.delete-modal-content h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    color: #1f2937;
+}
+
+.delete-modal-content p {
+    margin: 0 0 2rem 0;
+    color: #6b7280;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.delete-modal-actions button {
+    min-width: 120px;
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.delete-confirmation-modal {
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .delete-confirmation-modal {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .delete-modal-icon {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 1rem;
+    }
+
+    .delete-modal-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .delete-modal-content h2 {
+        font-size: 1.25rem;
+    }
+
+    .delete-modal-content p {
+        font-size: 0.95rem;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column;
+    }
+
+    .delete-modal-actions button {
+        width: 100%;
+    }
+}

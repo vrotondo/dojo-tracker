@@ -1,83 +1,76 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VideoRecorder from '../components/VideoRecorder/VideoRecorder';
+import techniqueService from '../services/techniqueService';
+import trainingService from '../services/trainingService';
 import './TechniqueDetail.css';
 
 function TechniqueDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+
     const [technique, setTechnique] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState('');
     const [showRecorder, setShowRecorder] = useState(false);
     const [userVideos, setUserVideos] = useState([]);
     const [loadingVideos, setLoadingVideos] = useState(false);
 
     useEffect(() => {
-        fetchTechnique();
-        fetchUserVideos();
+        loadTechniqueDetails();
+        loadUserVideos();
     }, [id]);
 
-    const fetchTechnique = async () => {
+    const loadTechniqueDetails = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-
-            const response = await fetch(`http://localhost:5000/api/techniques/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch technique');
-            }
-
-            const data = await response.json();
+            const data = await techniqueService.getTechniqueById(id);
             setTechnique(data.technique);
-            setError(null);
-        } catch (err) {
-            setError(err.message);
+        } catch (error) {
+            console.error('Failed to load technique:', error);
+            setError('Failed to load technique details');
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchUserVideos = async () => {
+    const loadUserVideos = async () => {
         try {
             setLoadingVideos(true);
-            const token = localStorage.getItem('token');
 
-            const response = await fetch(
-                `http://localhost:5000/api/training/videos?limit=10`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
+            // Get the technique first to know its name
+            const techData = await techniqueService.getTechniqueById(id);
+            const techniqueName = techData.technique.name;
 
-            if (response.ok) {
-                const data = await response.json();
-                // Filter videos for this technique
-                const filteredVideos = data.videos.filter(
-                    video => video.technique_name === technique?.name
-                );
-                setUserVideos(filteredVideos);
-            }
-        } catch (err) {
-            console.error('Failed to fetch videos:', err);
+            // Fetch videos filtered by technique name
+            const response = await trainingService.getVideos({
+                technique_name: techniqueName
+            });
+
+            setUserVideos(response.videos || []);
+        } catch (error) {
+            console.error('Failed to load user videos:', error);
+            // Don't show error to user - just show empty state
+            setUserVideos([]);
         } finally {
             setLoadingVideos(false);
         }
     };
 
-    const handleVideoUploadSuccess = (video) => {
+    const handleVideoUploadSuccess = (uploadedVideo) => {
+        console.log('Video uploaded successfully:', uploadedVideo);
         setShowRecorder(false);
-        // Refresh the videos list
-        fetchUserVideos();
+
+        // Reload videos to show the new upload
+        loadUserVideos();
+
         // Show success message
-        alert(`Video uploaded successfully! Your ${technique.name} practice has been saved.`);
+        alert(`Success! Your ${technique.name} practice has been saved.`);
+    };
+
+    const handleVideoClick = (video) => {
+        // Navigate to dedicated video player page
+        navigate(`/video/${video.id}`);
     };
 
     const getDifficultyColor = (difficulty) => {
@@ -188,11 +181,19 @@ function TechniqueDetail() {
                     <div className="history-section">
                         <h2>Your Previous Attempts</h2>
                         {loadingVideos ? (
-                            <div className="loading-videos">Loading your videos...</div>
+                            <div className="loading-videos">
+                                <div className="spinner"></div>
+                                <p>Loading your videos...</p>
+                            </div>
                         ) : userVideos.length > 0 ? (
                             <div className="video-history-grid">
                                 {userVideos.map((video) => (
-                                    <div key={video.id} className="video-history-card">
+                                    <div
+                                        key={video.id}
+                                        className="video-history-card"
+                                        onClick={() => handleVideoClick(video)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <div className="video-thumbnail">
                                             <span className="play-icon">▶</span>
                                         </div>
