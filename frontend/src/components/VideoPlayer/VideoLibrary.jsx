@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../../common/Button';
-import LoadingSpinner from '../../common/LoadingSpinner';
+import LoadingSpinner from '../common/LoadingSpinner';
 import VideoEditModal from './VideoEditModal';
-import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
-import trainingService from '../../../services/trainingService';
-import '../../../styles/components/video-library.css';
+import DeleteConfirmationModal from '../DeleteConfirmationModal/DeleteConfirmationModal';
+import trainingService from '../../services/trainingService';
+import './video-library.css';
+
+// Inline Button component
+const Button = ({ children, onClick, variant = 'primary', disabled = false }) => {
+    const styles = {
+        padding: '0.75rem 1.5rem',
+        border: variant === 'secondary' ? '2px solid #d1d5db' : 'none',
+        borderRadius: '8px',
+        fontSize: '1rem',
+        fontWeight: '600',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        background: variant === 'primary' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' :
+            variant === 'danger' ? '#ef4444' : '#f3f4f6',
+        color: variant === 'secondary' ? '#374151' : 'white',
+    };
+    return <button style={styles} onClick={onClick} disabled={disabled}>{children}</button>;
+};
 
 const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
     const navigate = useNavigate();
@@ -34,7 +50,6 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
         try {
             setIsLoading(true);
             setError('');
-
             const response = await trainingService.getVideos();
             setVideos(response.videos || []);
             setStats(response.stats);
@@ -58,9 +73,9 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
         if (filters.search) {
             const searchLower = filters.search.toLowerCase();
             result = result.filter(video =>
-                video.title.toLowerCase().includes(searchLower) ||
-                (video.description && video.description.toLowerCase().includes(searchLower)) ||
-                (video.technique_name && video.technique_name.toLowerCase().includes(searchLower))
+                video.title?.toLowerCase().includes(searchLower) ||
+                video.technique_name?.toLowerCase().includes(searchLower) ||
+                video.description?.toLowerCase().includes(searchLower)
             );
         }
 
@@ -80,35 +95,28 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
         }
 
         // Apply sorting
-        switch (sortBy) {
-            case 'newest':
-                result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                break;
-            case 'oldest':
-                result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                break;
-            case 'title':
-                result.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-            case 'technique':
-                result.sort((a, b) => (a.technique_name || '').localeCompare(b.technique_name || ''));
-                break;
-            default:
-                break;
-        }
+        result.sort((a, b) => {
+            switch (sortBy) {
+                case 'newest':
+                    return new Date(b.created_at) - new Date(a.created_at);
+                case 'oldest':
+                    return new Date(a.created_at) - new Date(b.created_at);
+                case 'title':
+                    return (a.title || '').localeCompare(b.title || '');
+                default:
+                    return 0;
+            }
+        });
 
         setFilteredVideos(result);
     }, [videos, filters, sortBy]);
 
-    const handleFilterChange = (key, value) => {
-        setFilters(prev => ({
-            ...prev,
-            [key]: value
-        }));
-    };
-
     const handleVideoClick = (video) => {
-        navigate(`/video/${video.id}`);
+        if (onSelectVideo) {
+            onSelectVideo(video);
+        } else {
+            navigate(`/video/${video.id}`);
+        }
     };
 
     const handleEdit = (video, e) => {
@@ -117,72 +125,44 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
         setShowEditModal(true);
     };
 
-    const handleEditSave = async (updatedData) => {
-        try {
-            const response = await trainingService.updateVideo(editingVideo.id, updatedData);
-
-            // Update the video in the list
-            setVideos(prev => prev.map(v =>
-                v.id === editingVideo.id ? response.video : v
-            ));
-
-            setShowEditModal(false);
-            setEditingVideo(null);
-            showSuccessMessage('Video updated successfully');
-        } catch (error) {
-            console.error('Failed to update video:', error);
-            throw error;
-        }
-    };
-
     const handleDelete = (video, e) => {
         e.stopPropagation();
         setDeletingVideo(video);
         setShowDeleteModal(true);
     };
 
+    const handleEditSave = async (updatedData) => {
+        try {
+            const response = await trainingService.updateVideo(editingVideo.id, updatedData);
+            setVideos(videos.map(v => v.id === editingVideo.id ? response.video : v));
+            setShowEditModal(false);
+            setEditingVideo(null);
+        } catch (error) {
+            console.error('Failed to update video:', error);
+            throw error;
+        }
+    };
+
     const handleDeleteConfirm = async () => {
         try {
             setIsDeleting(true);
             await trainingService.deleteVideo(deletingVideo.id);
-
-            // Remove video from list
-            setVideos(prev => prev.filter(v => v.id !== deletingVideo.id));
-
+            setVideos(videos.filter(v => v.id !== deletingVideo.id));
             setShowDeleteModal(false);
             setDeletingVideo(null);
-            showSuccessMessage('Video deleted successfully');
         } catch (error) {
             console.error('Failed to delete video:', error);
             setError(error.response?.data?.message || 'Failed to delete video');
-            setShowDeleteModal(false);
         } finally {
             setIsDeleting(false);
         }
     };
 
-    const showSuccessMessage = (message) => {
-        const notification = document.createElement('div');
-        notification.className = 'success-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    };
-
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
+        return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            year: 'numeric'
         });
     };
 
@@ -239,43 +219,39 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
             <div className="video-filters">
                 <input
                     type="text"
+                    className="search-input"
                     placeholder="Search videos..."
                     value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                    className="search-input"
+                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 />
-
                 <select
-                    value={filters.style}
-                    onChange={(e) => handleFilterChange('style', e.target.value)}
                     className="filter-select"
+                    value={filters.style}
+                    onChange={(e) => setFilters({ ...filters, style: e.target.value })}
                 >
                     <option value="">All Styles</option>
                     {getUniqueValues('style').map(style => (
                         <option key={style} value={style}>{style}</option>
                     ))}
                 </select>
-
                 <select
-                    value={filters.technique}
-                    onChange={(e) => handleFilterChange('technique', e.target.value)}
                     className="filter-select"
+                    value={filters.technique}
+                    onChange={(e) => setFilters({ ...filters, technique: e.target.value })}
                 >
                     <option value="">All Techniques</option>
-                    {getUniqueValues('technique_name').map(technique => (
-                        <option key={technique} value={technique}>{technique}</option>
+                    {getUniqueValues('technique_name').map(tech => (
+                        <option key={tech} value={tech}>{tech}</option>
                     ))}
                 </select>
-
                 <select
+                    className="sort-select"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="sort-select"
                 >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
-                    <option value="title">Title (A-Z)</option>
-                    <option value="technique">Technique</option>
+                    <option value="title">Title A-Z</option>
                 </select>
             </div>
 
@@ -293,30 +269,20 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
                                     <div className="play-button">▶</div>
                                 </div>
                                 {video.duration_formatted && (
-                                    <div className="video-duration">
-                                        {video.duration_formatted}
-                                    </div>
+                                    <span className="video-duration">{video.duration_formatted}</span>
                                 )}
                             </div>
-
                             <div className="video-card-content">
-                                <h3 className="video-title">{video.title}</h3>
-
+                                <h4 className="video-title">{video.title}</h4>
                                 <div className="video-meta">
                                     {video.technique_name && (
-                                        <span className="technique-badge">
-                                            {video.technique_name}
-                                        </span>
+                                        <span className="technique-badge">{video.technique_name}</span>
                                     )}
                                     {video.style && (
-                                        <span className="style-badge">
-                                            {video.style}
-                                        </span>
+                                        <span className="style-badge">{video.style}</span>
                                     )}
                                 </div>
-
                                 <p className="video-date">{formatDate(video.created_at)}</p>
-
                                 {video.analysis_status && (
                                     <span className={`analysis-status ${video.analysis_status}`}>
                                         {video.analysis_status === 'completed' && '✓ Analyzed'}
@@ -324,7 +290,6 @@ const VideoLibrary = ({ onSelectVideo, refreshTrigger }) => {
                                         {video.analysis_status === 'processing' && '⚙️ Processing'}
                                     </span>
                                 )}
-
                                 <div className="video-actions">
                                     <button
                                         className="action-btn edit-btn"
