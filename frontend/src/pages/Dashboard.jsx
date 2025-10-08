@@ -52,6 +52,9 @@ function Dashboard() {
                     <h1>🥋 DojoTracker</h1>
                     <div className="nav-right">
                         <span className="user-name">Welcome, {user?.username}!</span>
+                        <button onClick={() => navigate('/profile')} className="profile-btn">
+                            Profile
+                        </button>
                         <button onClick={handleLogout} className="logout-btn">
                             Logout
                         </button>

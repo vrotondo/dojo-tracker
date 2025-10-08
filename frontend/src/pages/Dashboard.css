@@ -1,3 +1,5 @@
+/* frontend/src/pages/Dashboard.css */
+
 .dashboard {
     min-height: 100vh;
     background: #f5f7fa;
@@ -30,7 +32,7 @@
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
 }
 
 .user-name {
@@ -38,15 +40,28 @@
     font-weight: 500;
 }
 
+.profile-btn,
 .logout-btn {
     padding: 8px 20px;
-    background: #f44336;
-    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
     transition: opacity 0.3s;
+}
+
+.profile-btn {
+    background: #667eea;
+    color: white;
+}
+
+.profile-btn:hover {
+    opacity: 0.9;
+}
+
+.logout-btn {
+    background: #f44336;
+    color: white;
 }
 
 .logout-btn:hover {
