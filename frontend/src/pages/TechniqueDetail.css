@@ -193,12 +193,13 @@
     border-radius: 8px;
     overflow: hidden;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .video-history-card:hover {
     border-color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
 }
 
 .video-thumbnail {
@@ -253,33 +254,6 @@
 .analysis-badge.processing {
     background: #dbeafe;
     color: #1e40af;
-}
-
-.video-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.video-action-btn {
-    flex: 1;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.video-action-btn.delete {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.video-action-btn.delete:hover {
-    background: #fecaca;
-    transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VideoRecorder from '../components/VideoRecorder/VideoRecorder';
+import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import techniqueService from '../services/techniqueService';
 import trainingService from '../services/trainingService';
 import './TechniqueDetail.css';
@@ -15,6 +16,7 @@ function TechniqueDetail() {
     const [showRecorder, setShowRecorder] = useState(false);
     const [userVideos, setUserVideos] = useState([]);
     const [loadingVideos, setLoadingVideos] = useState(false);
+    const [selectedVideoId, setSelectedVideoId] = useState(null);
 
     useEffect(() => {
         loadTechniqueDetails();
@@ -67,19 +69,9 @@ function TechniqueDetail() {
         alert(`Success! Your ${technique.name} practice has been saved.`);
     };
 
-    const handleDeleteVideo = async (videoId) => {
-        if (!window.confirm('Are you sure you want to delete this video?')) {
-            return;
-        }
-
-        try {
-            await trainingService.deleteVideo(videoId);
-            alert('Video deleted successfully');
-            loadUserVideos();
-        } catch (error) {
-            console.error('Failed to delete video:', error);
-            alert('Failed to delete video');
-        }
+    const handleVideoDeleted = (videoId) => {
+        // Refresh the video list after deletion
+        loadUserVideos();
     };
 
     const getDifficultyColor = (difficulty) => {
@@ -196,7 +188,12 @@ function TechniqueDetail() {
                         ) : userVideos.length > 0 ? (
                             <div className="video-history-grid">
                                 {userVideos.map((video) => (
-                                    <div key={video.id} className="video-history-card">
+                                    <div
+                                        key={video.id}
+                                        className="video-history-card"
+                                        onClick={() => setSelectedVideoId(video.id)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <div className="video-thumbnail">
                                             <span className="play-icon">▶</span>
                                         </div>
@@ -212,15 +209,6 @@ function TechniqueDetail() {
                                                     {video.analysis_status === 'processing' && '⚙️ Processing'}
                                                 </span>
                                             )}
-                                            <div className="video-actions">
-                                                <button
-                                                    className="video-action-btn delete"
-                                                    onClick={() => handleDeleteVideo(video.id)}
-                                                    title="Delete video"
-                                                >
-                                                    🗑️ Delete
-                                                </button>
-                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -242,6 +230,14 @@ function TechniqueDetail() {
                     techniqueStyle={technique.style}
                     onClose={() => setShowRecorder(false)}
                     onSuccess={handleVideoUploadSuccess}
+                />
+            )}
+
+            {selectedVideoId && (
+                <VideoPlayer
+                    videoId={selectedVideoId}
+                    onClose={() => setSelectedVideoId(null)}
+                    onVideoDeleted={handleVideoDeleted}
                 />
             )}
         </div>

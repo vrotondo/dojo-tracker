@@ -1,0 +1,377 @@
+.video-player-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.video-player-modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 30px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+.player-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.title-edit-input {
+    flex: 1;
+    margin-right: 16px;
+    padding: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1f2937;
+}
+
+.title-edit-input:focus {
+    outline: none;
+    border-color: white;
+}
+
+.close-player-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.close-player-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.player-body {
+    padding: 0;
+}
+
+.video-player-container {
+    width: 100%;
+    background: #000;
+    position: relative;
+}
+
+.player-video {
+    width: 100%;
+    max-height: 600px;
+    display: block;
+}
+
+.video-details {
+    padding: 30px;
+}
+
+.detail-section {
+    margin-bottom: 30px;
+}
+
+.detail-section h3 {
+    color: #1f2937;
+    font-size: 1.25rem;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 1rem;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.processing {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.video-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.analysis-section {
+    background: #f0fdf4;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.analysis-score {
+    font-size: 1.25rem;
+    color: #059669;
+    margin-bottom: 12px;
+}
+
+.analysis-score strong {
+    font-size: 1.5rem;
+}
+
+.analysis-feedback {
+    color: #065f46;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Edit Form */
+.edit-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.description-edit-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.description-edit-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 20px;
+}
+
+.save-edit-btn,
+.cancel-edit-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+}
+
+.save-edit-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    flex: 1;
+}
+
+.save-edit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.save-edit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cancel-edit-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #d1d5db;
+}
+
+.cancel-edit-btn:hover:not(:disabled) {
+    background: #e5e7eb;
+}
+
+/* Player Actions */
+.player-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 20px;
+}
+
+.edit-video-btn,
+.delete-video-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 1;
+}
+
+.edit-video-btn {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 2px solid #bfdbfe;
+}
+
+.edit-video-btn:hover {
+    background: #bfdbfe;
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+}
+
+.delete-video-btn {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #fca5a5;
+}
+
+.delete-video-btn:hover:not(:disabled) {
+    background: #fecaca;
+    border-color: #f87171;
+    transform: translateY(-2px);
+}
+
+.delete-video-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading-player,
+.error-player {
+    padding: 60px 20px;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.error-player {
+    color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .video-player-modal {
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .player-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .player-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .title-edit-input {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .player-video {
+        max-height: 400px;
+    }
+
+    .player-actions,
+    .edit-actions {
+        flex-direction: column;
+    }
+
+    .edit-video-btn,
+    .delete-video-btn,
+    .save-edit-btn,
+    .cancel-edit-btn {
+        width: 100%;
+    }
+}
