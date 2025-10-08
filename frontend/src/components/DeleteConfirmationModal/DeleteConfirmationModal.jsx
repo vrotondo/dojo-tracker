@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from './Button';
-import '../../styles/components/delete-confirmation-modal.css';
+import './delete-confirmation-modal.css';
 
 const DeleteConfirmationModal = ({
     title = 'Confirm Delete',

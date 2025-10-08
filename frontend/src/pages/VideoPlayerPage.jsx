@@ -1,12 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import VideoPlayer from '../components/features/training/VideoPlayer';
-import VideoEditModal from '../components/features/training/VideoEditModal';
-import DeleteConfirmationModal from '../components/common/DeleteConfirmationModal';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import Button from '../components/common/Button';
+import VideoEditModal from '../components/VideoPlayer/VideoEditModal';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal/DeleteConfirmationModal';
 import trainingService from '../services/trainingService';
-import '../styles/pages/video-player-page.css';
+import '../pages/video-player-page.css';
+
+// Simple inline Button component
+const Button = ({ children, onClick, variant = 'primary', disabled = false }) => {
+    const styles = {
+        padding: '0.75rem 1.5rem',
+        border: variant === 'secondary' ? '2px solid #d1d5db' : 'none',
+        borderRadius: '8px',
+        fontSize: '1rem',
+        fontWeight: '600',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        background: variant === 'primary' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' :
+            variant === 'danger' ? '#ef4444' : '#f3f4f6',
+        color: variant === 'secondary' ? '#374151' : 'white',
+    };
+    return <button style={styles} onClick={onClick} disabled={disabled}>{children}</button>;
+};
+
+// Simple inline LoadingSpinner component  
+const LoadingSpinner = () => (
+    <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <div style={{
+            width: '48px',
+            height: '48px',
+            border: '4px solid #f3f4f6',
+            borderTop: '4px solid #667eea',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+        }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}`}</style>
+    </div>
+);
 
 const VideoPlayerPage = () => {
     const { videoId } = useParams();
@@ -19,7 +49,6 @@ const VideoPlayerPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Load video details
     useEffect(() => {
         loadVideo();
     }, [videoId]);
@@ -38,9 +67,7 @@ const VideoPlayerPage = () => {
         }
     };
 
-    const handleEdit = () => {
-        setShowEditModal(true);
-    };
+    const handleEdit = () => setShowEditModal(true);
 
     const handleEditSave = async (updatedData) => {
         try {
@@ -54,16 +81,14 @@ const VideoPlayerPage = () => {
         }
     };
 
-    const handleDelete = () => {
-        setShowDeleteModal(true);
-    };
+    const handleDelete = () => setShowDeleteModal(true);
 
     const handleDeleteConfirm = async () => {
         try {
             setIsDeleting(true);
             await trainingService.deleteVideo(videoId);
             showSuccessMessage('Video deleted successfully');
-            navigate('/training?tab=videos');
+            navigate('/dashboard');
         } catch (error) {
             console.error('Failed to delete video:', error);
             setError(error.response?.data?.message || 'Failed to delete video');
@@ -74,16 +99,11 @@ const VideoPlayerPage = () => {
     };
 
     const showSuccessMessage = (message) => {
-        // Simple success notification - you can replace with a toast library
         const notification = document.createElement('div');
         notification.className = 'success-notification';
         notification.textContent = message;
         document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-
+        setTimeout(() => notification.classList.add('show'), 10);
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
@@ -91,13 +111,8 @@ const VideoPlayerPage = () => {
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
     };
 
@@ -118,9 +133,7 @@ const VideoPlayerPage = () => {
                 <div className="error-container">
                     <h2>Error Loading Video</h2>
                     <p>{error || 'Video not found'}</p>
-                    <Button onClick={() => navigate('/training?tab=videos')}>
-                        Back to Videos
-                    </Button>
+                    <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
                 </div>
             </div>
         );
@@ -128,50 +141,30 @@ const VideoPlayerPage = () => {
 
     return (
         <div className="video-player-page">
-            {/* Header */}
             <div className="page-header">
-                <Button
-                    variant="secondary"
-                    onClick={() => navigate('/training?tab=videos')}
-                >
-                    ← Back to Videos
+                <Button variant="secondary" onClick={() => navigate('/dashboard')}>
+                    ← Back to Dashboard
                 </Button>
                 <div className="header-actions">
-                    <Button variant="secondary" onClick={handleEdit}>
-                        Edit
-                    </Button>
-                    <Button variant="danger" onClick={handleDelete}>
-                        Delete
-                    </Button>
+                    <Button variant="secondary" onClick={handleEdit}>Edit</Button>
+                    <Button variant="danger" onClick={handleDelete}>Delete</Button>
                 </div>
             </div>
 
-            {/* Video Player */}
             <div className="video-player-container">
-                <VideoPlayer
-                    video={video}
-                    onClose={() => navigate('/training?tab=videos')}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
+                <video controls autoPlay
+                    src={`http://localhost:5000/api/training/videos/${video.id}/stream`}
+                    style={{ width: '100%', maxHeight: '600px', display: 'block', background: '#000' }}>
+                    Your browser does not support the video tag.
+                </video>
             </div>
 
-            {/* Video Information */}
             <div className="video-info-section">
                 <div className="video-metadata">
                     <h1>{video.title}</h1>
-
                     <div className="video-meta-tags">
-                        {video.technique_name && (
-                            <span className="meta-tag technique">
-                                🥋 {video.technique_name}
-                            </span>
-                        )}
-                        {video.style && (
-                            <span className="meta-tag style">
-                                {video.style}
-                            </span>
-                        )}
+                        {video.technique_name && <span className="meta-tag technique">🥋 {video.technique_name}</span>}
+                        {video.style && <span className="meta-tag style">{video.style}</span>}
                         {video.analysis_status && (
                             <span className={`meta-tag analysis ${video.analysis_status}`}>
                                 {video.analysis_status === 'completed' && '✓ Analyzed'}
@@ -180,51 +173,28 @@ const VideoPlayerPage = () => {
                             </span>
                         )}
                     </div>
-
                     <div className="video-details-grid">
                         <div className="detail-item">
                             <span className="detail-label">Uploaded:</span>
                             <span className="detail-value">{formatDate(video.created_at)}</span>
                         </div>
-                        {video.duration && (
-                            <div className="detail-item">
-                                <span className="detail-label">Duration:</span>
-                                <span className="detail-value">{video.duration_formatted}</span>
-                            </div>
-                        )}
                         <div className="detail-item">
                             <span className="detail-label">Size:</span>
-                            <span className="detail-value">{video.file_size_mb} MB</span>
+                            <span className="detail-value">{(video.file_size / (1024 * 1024)).toFixed(2)} MB</span>
                         </div>
                         <div className="detail-item">
                             <span className="detail-label">Privacy:</span>
-                            <span className="detail-value">
-                                {video.is_private ? '🔒 Private' : '🌍 Public'}
-                            </span>
+                            <span className="detail-value">{video.is_private ? '🔒 Private' : '🌍 Public'}</span>
                         </div>
                     </div>
-
                     {video.description && (
                         <div className="video-description">
                             <h3>Description</h3>
                             <p>{video.description}</p>
                         </div>
                     )}
-
-                    {video.tags && video.tags.length > 0 && (
-                        <div className="video-tags">
-                            <h3>Tags</h3>
-                            <div className="tags-list">
-                                {video.tags.map((tag, index) => (
-                                    <span key={index} className="tag">{tag}</span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
-
-                {/* Analysis Results Section */}
-                {video.analysis_status === 'completed' && video.analysis_results && (
+                {video.analysis_status === 'completed' && video.analysis_feedback && (
                     <div className="analysis-results-section">
                         <h2>AI Analysis Results</h2>
                         <div className="analysis-content">
@@ -234,21 +204,15 @@ const VideoPlayerPage = () => {
                                     <span className="score-value">{video.analysis_score}/10</span>
                                 </div>
                             )}
-                            {/* Add more analysis result display here */}
+                            <p>{video.analysis_feedback}</p>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Modals */}
             {showEditModal && (
-                <VideoEditModal
-                    video={video}
-                    onSave={handleEditSave}
-                    onClose={() => setShowEditModal(false)}
-                />
+                <VideoEditModal video={video} onSave={handleEditSave} onClose={() => setShowEditModal(false)} />
             )}
-
             {showDeleteModal && (
                 <DeleteConfirmationModal
                     title="Delete Video"

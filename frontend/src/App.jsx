@@ -8,6 +8,7 @@ import Register from './components/Auth/Register';
 // Main Pages
 import Dashboard from './pages/Dashboard';
 import TechniqueDetail from './pages/TechniqueDetail';
+import VideoPlayerPage from './pages/VideoPlayerPage';
 
 import './App.css';
 
@@ -40,6 +41,15 @@ function App() {
           element={
             <ProtectedRoute>
               <TechniqueDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/video/:videoId"
+          element={
+            <ProtectedRoute>
+              <VideoPlayerPage />
             </ProtectedRoute>
           }
         />

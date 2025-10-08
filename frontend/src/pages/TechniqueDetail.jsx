@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VideoRecorder from '../components/VideoRecorder/VideoRecorder';
-import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import techniqueService from '../services/techniqueService';
 import trainingService from '../services/trainingService';
 import './TechniqueDetail.css';
@@ -16,7 +15,6 @@ function TechniqueDetail() {
     const [showRecorder, setShowRecorder] = useState(false);
     const [userVideos, setUserVideos] = useState([]);
     const [loadingVideos, setLoadingVideos] = useState(false);
-    const [selectedVideoId, setSelectedVideoId] = useState(null);
 
     useEffect(() => {
         loadTechniqueDetails();
@@ -69,9 +67,8 @@ function TechniqueDetail() {
         alert(`Success! Your ${technique.name} practice has been saved.`);
     };
 
-    const handleVideoDeleted = (videoId) => {
-        // Refresh the video list after deletion
-        loadUserVideos();
+    const handleVideoClick = (videoId) => {
+        navigate(`/video/${videoId}`);
     };
 
     const getDifficultyColor = (difficulty) => {
@@ -191,7 +188,7 @@ function TechniqueDetail() {
                                     <div
                                         key={video.id}
                                         className="video-history-card"
-                                        onClick={() => setSelectedVideoId(video.id)}
+                                        onClick={() => handleVideoClick(video.id)}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <div className="video-thumbnail">
@@ -230,14 +227,6 @@ function TechniqueDetail() {
                     techniqueStyle={technique.style}
                     onClose={() => setShowRecorder(false)}
                     onSuccess={handleVideoUploadSuccess}
-                />
-            )}
-
-            {selectedVideoId && (
-                <VideoPlayer
-                    videoId={selectedVideoId}
-                    onClose={() => setSelectedVideoId(null)}
-                    onVideoDeleted={handleVideoDeleted}
                 />
             )}
         </div>

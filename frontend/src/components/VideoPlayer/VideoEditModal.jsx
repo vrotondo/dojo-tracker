@@ -1,6 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../../common/Button';
-import '../../../styles/components/video-edit-modal.css';
+import './video-edit-modal.css';
+
+// Inline Button component to avoid import issues
+const Button = ({ children, onClick, variant = 'primary', disabled = false, loading = false }) => {
+    const baseStyle = {
+        padding: '0.75rem 1.5rem',
+        borderRadius: '8px',
+        fontSize: '1rem',
+        fontWeight: '600',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'all 0.3s',
+        opacity: disabled ? 0.6 : 1,
+        border: 'none',
+    };
+
+    const variants = {
+        primary: { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' },
+        secondary: { background: '#f3f4f6', color: '#374151', border: '2px solid #d1d5db' },
+    };
+
+    return (
+        <button style={{ ...baseStyle, ...variants[variant] }} onClick={onClick} disabled={disabled || loading}>
+            {loading ? 'Saving...' : children}
+        </button>
+    );
+};
 
 const VideoEditModal = ({ video, onSave, onClose }) => {
     const [formData, setFormData] = useState({
@@ -28,61 +52,39 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
     }, [video]);
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-
-        // Clear error for this field
+        setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
-            setErrors(prev => ({
-                ...prev,
-                [field]: undefined
-            }));
+            setErrors(prev => ({ ...prev, [field]: undefined }));
         }
     };
 
     const validate = () => {
         const newErrors = {};
-
         if (!formData.title.trim()) {
             newErrors.title = 'Title is required';
         } else if (formData.title.length > 200) {
             newErrors.title = 'Title must be less than 200 characters';
         }
-
         if (formData.description && formData.description.length > 1000) {
             newErrors.description = 'Description must be less than 1000 characters';
         }
-
         if (formData.technique_name && formData.technique_name.length > 100) {
             newErrors.technique_name = 'Technique name must be less than 100 characters';
         }
-
         if (formData.style && formData.style.length > 50) {
             newErrors.style = 'Style must be less than 50 characters';
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!validate()) {
-            return;
-        }
+        if (!validate()) return;
 
         setIsSaving(true);
-
         try {
-            // Parse tags from comma-separated string
-            const tags = formData.tags
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag.length > 0);
-
+            const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
             const updateData = {
                 title: formData.title.trim(),
                 description: formData.description.trim(),
@@ -91,13 +93,10 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                 tags: tags,
                 is_private: formData.is_private
             };
-
             await onSave(updateData);
         } catch (error) {
             console.error('Save error:', error);
-            setErrors({
-                general: error.response?.data?.message || 'Failed to update video'
-            });
+            setErrors({ general: error.response?.data?.message || 'Failed to update video' });
         } finally {
             setIsSaving(false);
         }
@@ -114,26 +113,14 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
             <div className="modal-content video-edit-modal">
                 <div className="modal-header">
                     <h2>Edit Video</h2>
-                    <button
-                        className="modal-close-btn"
-                        onClick={onClose}
-                        disabled={isSaving}
-                    >
-                        ×
-                    </button>
+                    <button className="modal-close-btn" onClick={onClose} disabled={isSaving}>×</button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-body">
-                    {errors.general && (
-                        <div className="error-message general">
-                            {errors.general}
-                        </div>
-                    )}
+                    {errors.general && <div className="error-message general">{errors.general}</div>}
 
                     <div className="form-group">
-                        <label htmlFor="edit-title">
-                            Title <span className="required">*</span>
-                        </label>
+                        <label htmlFor="edit-title">Title <span className="required">*</span></label>
                         <input
                             id="edit-title"
                             type="text"
@@ -143,9 +130,7 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             placeholder="Enter video title"
                             disabled={isSaving}
                         />
-                        {errors.title && (
-                            <span className="field-error">{errors.title}</span>
-                        )}
+                        {errors.title && <span className="field-error">{errors.title}</span>}
                     </div>
 
                     <div className="form-group">
@@ -159,9 +144,7 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             placeholder="e.g., Roundhouse Kick, Armbar"
                             disabled={isSaving}
                         />
-                        {errors.technique_name && (
-                            <span className="field-error">{errors.technique_name}</span>
-                        )}
+                        {errors.technique_name && <span className="field-error">{errors.technique_name}</span>}
                     </div>
 
                     <div className="form-group">
@@ -175,9 +158,7 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             placeholder="e.g., Muay Thai, BJJ, Karate"
                             disabled={isSaving}
                         />
-                        {errors.style && (
-                            <span className="field-error">{errors.style}</span>
-                        )}
+                        {errors.style && <span className="field-error">{errors.style}</span>}
                     </div>
 
                     <div className="form-group">
@@ -191,12 +172,8 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             rows={4}
                             disabled={isSaving}
                         />
-                        {errors.description && (
-                            <span className="field-error">{errors.description}</span>
-                        )}
-                        <span className="field-hint">
-                            {formData.description.length}/1000 characters
-                        </span>
+                        {errors.description && <span className="field-error">{errors.description}</span>}
+                        <span className="field-hint">{formData.description.length}/1000 characters</span>
                     </div>
 
                     <div className="form-group">
@@ -210,9 +187,7 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             placeholder="e.g., training, sparring, competition"
                             disabled={isSaving}
                         />
-                        <span className="field-hint">
-                            Separate tags with commas
-                        </span>
+                        <span className="field-hint">Separate tags with commas</span>
                     </div>
 
                     <div className="form-group checkbox-group">
@@ -225,27 +200,14 @@ const VideoEditModal = ({ video, onSave, onClose }) => {
                             />
                             <span>Keep video private</span>
                         </label>
-                        <span className="field-hint">
-                            Private videos are only visible to you
-                        </span>
+                        <span className="field-hint">Private videos are only visible to you</span>
                     </div>
                 </form>
 
                 <div className="modal-footer">
-                    <Button
-                        variant="secondary"
-                        onClick={onClose}
-                        disabled={isSaving}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleSubmit}
-                        disabled={isSaving}
-                        loading={isSaving}
-                    >
-                        {isSaving ? 'Saving...' : 'Save Changes'}
+                    <Button variant="secondary" onClick={onClose} disabled={isSaving}>Cancel</Button>
+                    <Button variant="primary" onClick={handleSubmit} disabled={isSaving} loading={isSaving}>
+                        Save Changes
                     </Button>
                 </div>
             </div>
