@@ -9,6 +9,7 @@ import Register from './components/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import TechniqueDetail from './pages/TechniqueDetail';
 import VideoPlayerPage from './pages/VideoPlayerPage';
+import Profile from './pages/Profile';
 
 import './App.css';
 
@@ -50,6 +51,15 @@ function App() {
           element={
             <ProtectedRoute>
               <VideoPlayerPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
