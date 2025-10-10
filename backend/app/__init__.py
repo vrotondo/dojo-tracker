@@ -47,8 +47,10 @@ def create_app():
         from app.models.analysis import VideoAnalysis
         from app.models.training_video import TrainingVideo
         from app.models.training_session import TrainingSession
+        from app.models.user_technique_progress import UserTechniqueProgress
         
         db.create_all()
+        print("✅ Database tables created/verified")
     
     # Register blueprints
     from app.routes.auth import auth_bp
@@ -63,5 +65,12 @@ def create_app():
         print("✅ Training blueprint registered at /api/training")
     except ImportError as e:
         print(f"❌ Failed to import training blueprint: {e}")
+    
+    try:
+        from app.routes.progress import progress_bp
+        app.register_blueprint(progress_bp, url_prefix='/api/progress')
+        print("✅ Progress blueprint registered at /api/progress")
+    except ImportError as e:
+        print(f"❌ Failed to import progress blueprint: {e}")
     
     return app

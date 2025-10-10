@@ -65,6 +65,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/sessions"
+          element={
+            <ProtectedRoute>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/dashboard" />} />
 
