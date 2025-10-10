@@ -58,6 +58,8 @@ def create_app():
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(techniques_bp, url_prefix='/api/techniques')
+    print("✅ Auth blueprint registered at /api/auth")
+    print("✅ Techniques blueprint registered at /api/techniques")
 
     try:
         from app.routes.training import training_bp

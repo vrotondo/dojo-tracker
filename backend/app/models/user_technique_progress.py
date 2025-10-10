@@ -29,10 +29,6 @@ class UserTechniqueProgress(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
-    user = db.relationship('User', backref=db.backref('technique_progress', lazy=True, cascade='all, delete-orphan'))
-    technique = db.relationship('Technique', backref=db.backref('user_progress', lazy=True))
-    
     # Unique constraint - each user can only track a technique once
     __table_args__ = (
         db.UniqueConstraint('user_id', 'technique_id', name='unique_user_technique'),
@@ -58,8 +54,11 @@ class UserTechniqueProgress(db.Model):
     
     def to_dict_with_technique(self):
         """Include technique details in the response"""
+        from app.models.technique import Technique
+        
         data = self.to_dict()
-        data['technique'] = self.technique.to_dict() if self.technique else None
+        technique = Technique.query.get(self.technique_id)
+        data['technique'] = technique.to_dict() if technique else None
         return data
     
     def __repr__(self):

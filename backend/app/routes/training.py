@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import uuid
+import traceback
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, send_file
@@ -32,12 +33,19 @@ def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_VIDEO_EXTENSIONS
 
+@training_bp.route('/test', methods=['GET'])
+def test():
+    """Test endpoint"""
+    return jsonify({'message': 'Training routes working'}), 200
+
 @training_bp.route('/videos', methods=['GET'])
 @jwt_required()
 def get_videos():
     """Get all videos for current user"""
     try:
+        print(">>> Getting videos...")
         current_user_id = get_current_user_id()
+        print(f">>> User ID: {current_user_id}")
         
         # Optional filters
         technique_id = request.args.get('technique_id', type=int)
@@ -46,6 +54,7 @@ def get_videos():
         limit = request.args.get('limit', type=int, default=50)
         offset = request.args.get('offset', type=int, default=0)
         
+        print(f">>> Building query for user {current_user_id}...")
         # Build query
         query = TrainingVideo.query.filter_by(user_id=current_user_id)
         
@@ -56,14 +65,21 @@ def get_videos():
         if technique_name:
             query = query.filter_by(technique_name=technique_name)
         
+        print(">>> Getting count...")
         # Get total count
         total_count = query.count()
+        print(f">>> Total videos: {total_count}")
         
+        print(">>> Fetching videos...")
         # Apply pagination
         videos = query.order_by(TrainingVideo.created_at.desc()).limit(limit).offset(offset).all()
+        print(f">>> Found {len(videos)} videos")
+        
+        print(">>> Converting to dict...")
+        video_dicts = [video.to_dict() for video in videos]
         
         return jsonify({
-            'videos': [video.to_dict() for video in videos],
+            'videos': video_dicts,
             'count': len(videos),
             'total': total_count,
             'limit': limit,
@@ -71,7 +87,10 @@ def get_videos():
         }), 200
         
     except Exception as e:
-        print(f"Error getting videos: {str(e)}")
+        print(f"!!! ERROR getting videos: {str(e)}")
+        print(f"!!! Error type: {type(e).__name__}")
+        print(f"!!! Full traceback:")
+        traceback.print_exc()
         return jsonify({'message': f'Failed to get videos: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>', methods=['GET'])
@@ -89,6 +108,8 @@ def get_video(video_id):
         return jsonify({'video': video.to_dict()}), 200
         
     except Exception as e:
+        print(f"Error getting video: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Failed to get video: {str(e)}'}), 500
 
 @training_bp.route('/videos', methods=['POST'])
@@ -96,7 +117,9 @@ def get_video(video_id):
 def upload_video():
     """Upload a new training video"""
     try:
+        print(">>> Starting video upload...")
         current_user_id = get_current_user_id()
+        print(f">>> User ID: {current_user_id}")
         
         # Validate file
         if 'video' not in request.files:
@@ -119,17 +142,22 @@ def upload_video():
         is_private = request.form.get('is_private', 'true').lower() == 'true'
         technique_id = request.form.get('technique_id', type=int)
         
+        print(f">>> Technique ID: {technique_id}, Name: {technique_name}")
+        
         # Generate unique filename
         upload_dir = ensure_upload_directory()
         extension = file.filename.rsplit('.', 1)[1].lower()
         unique_filename = f"user_{current_user_id}_{uuid.uuid4()}.{extension}"
         file_path = os.path.join(upload_dir, unique_filename)
         
+        print(f">>> Saving file to: {file_path}")
         # Save file
         file.save(file_path)
         file_size = os.path.getsize(file_path)
+        print(f">>> File saved, size: {file_size}")
         
         # Create database entry
+        print(">>> Creating database entry...")
         new_video = TrainingVideo(
             user_id=current_user_id,
             technique_id=technique_id,
@@ -146,6 +174,7 @@ def upload_video():
         
         db.session.add(new_video)
         db.session.commit()
+        print(">>> Video saved to database successfully!")
         
         return jsonify({
             'message': 'Video uploaded successfully',
@@ -154,7 +183,9 @@ def upload_video():
         
     except Exception as e:
         db.session.rollback()
-        print(f"Upload error: {str(e)}")
+        print(f"!!! Upload error: {str(e)}")
+        print(f"!!! Error type: {type(e).__name__}")
+        traceback.print_exc()
         return jsonify({'message': f'Upload failed: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>', methods=['PUT'])
@@ -196,6 +227,8 @@ def update_video(video_id):
         
     except Exception as e:
         db.session.rollback()
+        print(f"Update error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Update failed: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>', methods=['DELETE'])
@@ -225,6 +258,8 @@ def delete_video(video_id):
         
     except Exception as e:
         db.session.rollback()
+        print(f"Delete error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Delete failed: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>/stream', methods=['GET'])
@@ -249,12 +284,12 @@ def stream_video(video_id):
         )
         
     except Exception as e:
+        print(f"Stream error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Stream failed: {str(e)}'}), 500
 
-@training_bp.route('/test', methods=['GET'])
-def test():
-    """Test endpoint"""
-    return jsonify({'message': 'Training routes working'}), 200
+# Session routes continue below...
+# (keeping existing session routes unchanged)
 
 @training_bp.route('/sessions', methods=['GET'])
 @jwt_required()
@@ -263,14 +298,12 @@ def get_sessions():
     try:
         current_user_id = get_current_user_id()
         
-        # Optional filters
         style = request.args.get('style')
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
         limit = request.args.get('limit', type=int, default=50)
         offset = request.args.get('offset', type=int, default=0)
         
-        # Build query
         query = TrainingSession.query.filter_by(user_id=current_user_id)
         
         if style:
@@ -280,10 +313,7 @@ def get_sessions():
         if end_date:
             query = query.filter(TrainingSession.session_date <= end_date)
         
-        # Get total count
         total_count = query.count()
-        
-        # Apply pagination and order
         sessions = query.order_by(TrainingSession.session_date.desc()).limit(limit).offset(offset).all()
         
         return jsonify({
@@ -296,6 +326,7 @@ def get_sessions():
         
     except Exception as e:
         print(f"Error getting sessions: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Failed to get sessions: {str(e)}'}), 500
 
 @training_bp.route('/sessions/<int:session_id>', methods=['GET'])
@@ -310,7 +341,6 @@ def get_session(session_id):
         if not session:
             return jsonify({'message': 'Session not found'}), 404
         
-        # Get videos linked to this session
         videos = TrainingVideo.query.filter_by(session_id=session_id).all()
         
         session_data = session.to_dict()
@@ -320,6 +350,8 @@ def get_session(session_id):
         return jsonify({'session': session_data}), 200
         
     except Exception as e:
+        print(f"Error getting session: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Failed to get session: {str(e)}'}), 500
 
 @training_bp.route('/sessions', methods=['POST'])
@@ -330,11 +362,9 @@ def create_session():
         current_user_id = get_current_user_id()
         data = request.get_json()
         
-        # Validation
         if not data.get('title'):
             return jsonify({'message': 'Title is required'}), 400
         
-        # Parse session_date if provided
         session_date = datetime.utcnow()
         if data.get('session_date'):
             try:
@@ -365,6 +395,7 @@ def create_session():
     except Exception as e:
         db.session.rollback()
         print(f"Create session error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Failed to create session: {str(e)}'}), 500
 
 @training_bp.route('/sessions/<int:session_id>', methods=['PUT'])
@@ -381,7 +412,6 @@ def update_session(session_id):
         
         data = request.get_json()
         
-        # Update allowed fields
         if 'title' in data:
             session.title = data['title']
         if 'style' in data:
@@ -411,6 +441,8 @@ def update_session(session_id):
         
     except Exception as e:
         db.session.rollback()
+        print(f"Update session error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Update failed: {str(e)}'}), 500
 
 @training_bp.route('/sessions/<int:session_id>', methods=['DELETE'])
@@ -428,7 +460,6 @@ def delete_session(session_id):
         # Unlink videos (don't delete them, just remove session_id)
         TrainingVideo.query.filter_by(session_id=session_id).update({'session_id': None})
         
-        # Delete session
         db.session.delete(session)
         db.session.commit()
         
@@ -436,6 +467,8 @@ def delete_session(session_id):
         
     except Exception as e:
         db.session.rollback()
+        print(f"Delete session error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'message': f'Delete failed: {str(e)}'}), 500
 
 @training_bp.route('/sessions/stats', methods=['GET'])
@@ -447,22 +480,18 @@ def get_session_stats():
         
         total_sessions = TrainingSession.query.filter_by(user_id=current_user_id).count()
         
-        # Total training time
         total_duration = db.session.query(func.sum(TrainingSession.duration)).filter_by(user_id=current_user_id).scalar() or 0
         
-        # Sessions by style
         sessions_by_style = db.session.query(
             TrainingSession.style,
             func.count(TrainingSession.id),
             func.sum(TrainingSession.duration)
         ).filter_by(user_id=current_user_id).group_by(TrainingSession.style).all()
         
-        # Recent sessions
         recent_sessions = TrainingSession.query.filter_by(user_id=current_user_id).order_by(
             TrainingSession.session_date.desc()
         ).limit(5).all()
         
-        # Format duration
         hours = int(total_duration // 60)
         minutes = int(total_duration % 60)
         duration_formatted = f"{hours}h {minutes}m" if hours > 0 else f"{minutes}m"
@@ -479,4 +508,6 @@ def get_session_stats():
         }), 200
         
     except Exception as e:
+        print(f"Stats error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'error': f'Failed to get stats: {str(e)}'}), 500
