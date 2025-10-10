@@ -5,7 +5,7 @@ import traceback
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, send_file
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, decode_token
 from app.models import db
 from app.models.training_video import TrainingVideo
 from app.models.technique import Technique
@@ -262,35 +262,6 @@ def delete_video(video_id):
         traceback.print_exc()
         return jsonify({'message': f'Delete failed: {str(e)}'}), 500
 
-@training_bp.route('/videos/<int:video_id>/stream', methods=['GET'])
-@jwt_required()
-def stream_video(video_id):
-    """Stream video file"""
-    try:
-        current_user_id = get_current_user_id()
-        
-        video = TrainingVideo.query.filter_by(id=video_id, user_id=current_user_id).first()
-        
-        if not video:
-            return jsonify({'message': 'Video not found'}), 404
-        
-        if not os.path.exists(video.file_path):
-            return jsonify({'message': 'Video file not found on server'}), 404
-        
-        return send_file(
-            video.file_path,
-            mimetype=f'video/{video.filename.rsplit(".", 1)[1].lower()}',
-            as_attachment=False
-        )
-        
-    except Exception as e:
-        print(f"Stream error: {str(e)}")
-        traceback.print_exc()
-        return jsonify({'message': f'Stream failed: {str(e)}'}), 500
-
-# Session routes continue below...
-# (keeping existing session routes unchanged)
-
 @training_bp.route('/sessions', methods=['GET'])
 @jwt_required()
 def get_sessions():
@@ -511,3 +482,47 @@ def get_session_stats():
         print(f"Stats error: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': f'Failed to get stats: {str(e)}'}), 500
+    
+@training_bp.route('/videos/<int:video_id>/stream', methods=['GET'])
+def stream_video(video_id):
+    """Stream video file - allows token in query param for video <src> tags"""
+    try:
+        # Try to get token from Authorization header first
+        try:
+            verify_jwt_in_request()
+            current_user_id = get_current_user_id()
+        except:
+            # If header auth fails, try query parameter (for video src tags)
+            token = request.args.get('token')
+            if not token:
+                return jsonify({'message': 'No authentication token provided'}), 401
+            
+            try:
+                # Manually decode and verify the token
+                from flask_jwt_extended import decode_token
+                decoded = decode_token(token)
+                current_user_id = int(decoded['sub'])
+            except:
+                return jsonify({'message': 'Invalid token'}), 401
+        
+        video = TrainingVideo.query.filter_by(id=video_id, user_id=current_user_id).first()
+        
+        if not video:
+            return jsonify({'message': 'Video not found'}), 404
+        
+        if not os.path.exists(video.file_path):
+            return jsonify({'message': 'Video file not found on server'}), 404
+        
+        # Get file extension
+        extension = video.filename.rsplit('.', 1)[1].lower() if '.' in video.filename else 'webm'
+        
+        return send_file(
+            video.file_path,
+            mimetype=f'video/{extension}',
+            as_attachment=False
+        )
+        
+    except Exception as e:
+        print(f"Stream error: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'message': f'Stream failed: {str(e)}'}), 500
