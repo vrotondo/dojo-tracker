@@ -194,3 +194,88 @@
         font-size: 1rem;
     }
 }
+
+/* Technique Card Styles */
+.technique-card.list-view {
+    display: flex;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.technique-card.list-view:hover {
+    transform: translateX(4px);
+}
+
+.list-view-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 2rem;
+}
+
+.list-view-left {
+    flex: 1;
+}
+
+.list-view-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.list-view-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.technique-style-badge {
+    background: #e0e7ff;
+    color: #4c51bf;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.technique-name {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.view-details-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.view-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .list-view-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .list-view-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .list-view-badges {
+        flex-direction: row;
+    }
+}

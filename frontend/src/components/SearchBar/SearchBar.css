@@ -1,0 +1,61 @@
+/* SearchBar Component Styles */
+
+.search-bar-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-bar-input {
+    width: 100%;
+    padding: 0.875rem 3rem 0.875rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: white;
+}
+
+.search-bar-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-bar-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f3f4f6;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.search-clear-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.search-clear-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .search-bar-input {
+        padding: 0.75rem 2.75rem 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+}
