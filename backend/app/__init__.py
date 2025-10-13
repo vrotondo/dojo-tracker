@@ -74,5 +74,12 @@ def create_app():
         print("✅ Progress blueprint registered at /api/progress")
     except ImportError as e:
         print(f"❌ Failed to import progress blueprint: {e}")
+
+    try:
+        from app.routes.admin import admin_bp
+        app.register_blueprint(admin_bp, url_prefix='/api/admin')
+        print("✅ Admin blueprint registered at /api/admin")
+    except ImportError as e:
+        print(f"❌ Failed to import admin blueprint: {e}")
     
     return app
