@@ -67,51 +67,41 @@ const VideoPlayerPage = () => {
         }
     };
 
-    const handleEdit = () => setShowEditModal(true);
+    const handleEdit = () => {
+        setShowEditModal(true);
+    };
 
-    const handleEditSave = async (updatedData) => {
+    const handleDelete = () => {
+        setShowDeleteModal(true);
+    };
+
+    const handleVideoUpdate = async (updatedData) => {
         try {
-            const response = await trainingService.updateVideo(videoId, updatedData);
-            setVideo(response.video);
+            await trainingService.updateVideo(videoId, updatedData);
             setShowEditModal(false);
-            showSuccessMessage('Video updated successfully');
+            await loadVideo(); // Reload video data
         } catch (error) {
             console.error('Failed to update video:', error);
             throw error;
         }
     };
 
-    const handleDelete = () => setShowDeleteModal(true);
-
-    const handleDeleteConfirm = async () => {
+    const handleVideoDelete = async () => {
         try {
             setIsDeleting(true);
             await trainingService.deleteVideo(videoId);
-            showSuccessMessage('Video deleted successfully');
             navigate('/dashboard');
         } catch (error) {
             console.error('Failed to delete video:', error);
             setError(error.response?.data?.message || 'Failed to delete video');
-            setShowDeleteModal(false);
         } finally {
             setIsDeleting(false);
+            setShowDeleteModal(false);
         }
     };
 
-    const showSuccessMessage = (message) => {
-        const notification = document.createElement('div');
-        notification.className = 'success-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.classList.add('show'), 10);
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    };
-
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
     };
@@ -152,9 +142,12 @@ const VideoPlayerPage = () => {
             </div>
 
             <div className="video-player-container">
-                <video controls autoPlay
-                    src={`http://localhost:5000/api/training/videos/${video.id}/stream`}
-                    style={{ width: '100%', maxHeight: '600px', display: 'block', background: '#000' }}>
+                <video
+                    controls
+                    autoPlay
+                    src={trainingService.getVideoStreamUrl(video.id)}
+                    style={{ width: '100%', maxHeight: '600px', display: 'block', background: '#000' }}
+                >
                     Your browser does not support the video tag.
                 </video>
             </div>
@@ -162,62 +155,64 @@ const VideoPlayerPage = () => {
             <div className="video-info-section">
                 <div className="video-metadata">
                     <h1>{video.title}</h1>
+
                     <div className="video-meta-tags">
-                        {video.technique_name && <span className="meta-tag technique">🥋 {video.technique_name}</span>}
-                        {video.style && <span className="meta-tag style">{video.style}</span>}
-                        {video.analysis_status && (
-                            <span className={`meta-tag analysis ${video.analysis_status}`}>
-                                {video.analysis_status === 'completed' && '✓ Analyzed'}
-                                {video.analysis_status === 'pending' && '⏳ Pending Analysis'}
-                                {video.analysis_status === 'processing' && '⚙️ Processing'}
-                            </span>
+                        {video.technique_name && (
+                            <span className="meta-tag technique">{video.technique_name}</span>
                         )}
+                        {video.style && (
+                            <span className="meta-tag style">{video.style}</span>
+                        )}
+                        <span className="meta-tag date">
+                            {formatDate(video.created_at)}
+                        </span>
                     </div>
-                    <div className="video-details-grid">
-                        <div className="detail-item">
-                            <span className="detail-label">Uploaded:</span>
-                            <span className="detail-value">{formatDate(video.created_at)}</span>
-                        </div>
-                        <div className="detail-item">
-                            <span className="detail-label">Size:</span>
-                            <span className="detail-value">{(video.file_size / (1024 * 1024)).toFixed(2)} MB</span>
-                        </div>
-                        <div className="detail-item">
-                            <span className="detail-label">Privacy:</span>
-                            <span className="detail-value">{video.is_private ? '🔒 Private' : '🌍 Public'}</span>
-                        </div>
-                    </div>
+
                     {video.description && (
                         <div className="video-description">
                             <h3>Description</h3>
                             <p>{video.description}</p>
                         </div>
                     )}
-                </div>
-                {video.analysis_status === 'completed' && video.analysis_feedback && (
-                    <div className="analysis-results-section">
-                        <h2>AI Analysis Results</h2>
-                        <div className="analysis-content">
-                            {video.analysis_score && (
-                                <div className="analysis-score">
-                                    <span className="score-label">Overall Score:</span>
-                                    <span className="score-value">{video.analysis_score}/10</span>
-                                </div>
-                            )}
-                            <p>{video.analysis_feedback}</p>
+
+                    <div className="video-details-grid">
+                        <div className="detail-item">
+                            <span className="detail-label">Filename:</span>
+                            <span className="detail-value">{video.filename}</span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="detail-label">File Size:</span>
+                            <span className="detail-value">
+                                {(video.file_size / (1024 * 1024)).toFixed(2)} MB
+                            </span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="detail-label">Duration:</span>
+                            <span className="detail-value">
+                                {video.duration ? `${video.duration}s` : 'Unknown'}
+                            </span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="detail-label">Uploaded:</span>
+                            <span className="detail-value">{formatDate(video.created_at)}</span>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
 
             {showEditModal && (
-                <VideoEditModal video={video} onSave={handleEditSave} onClose={() => setShowEditModal(false)} />
+                <VideoEditModal
+                    video={video}
+                    onClose={() => setShowEditModal(false)}
+                    onSave={handleVideoUpdate}
+                />
             )}
+
             {showDeleteModal && (
                 <DeleteConfirmationModal
                     title="Delete Video"
                     message={`Are you sure you want to delete "${video.title}"? This action cannot be undone.`}
-                    onConfirm={handleDeleteConfirm}
+                    onConfirm={handleVideoDelete}
                     onCancel={() => setShowDeleteModal(false)}
                     isDeleting={isDeleting}
                 />

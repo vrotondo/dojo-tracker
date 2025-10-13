@@ -75,6 +75,87 @@ const trainingService = {
     getVideoStreamUrl: (videoId) => {
         const token = localStorage.getItem('token');
         return `${API_URL}/videos/${videoId}/stream?token=${token}`;
+    },
+
+    // Get all sessions
+    getSessions: async (filters = {}) => {
+        const token = localStorage.getItem('token');
+        const params = new URLSearchParams(filters);
+
+        const response = await axios.get(`${API_URL}/sessions?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    },
+
+    // Get single session
+    getSession: async (sessionId) => {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.get(`${API_URL}/sessions/${sessionId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    },
+
+    // Create new session
+    createSession: async (sessionData) => {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.post(`${API_URL}/sessions`, sessionData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data;
+    },
+
+    // Update session
+    updateSession: async (sessionId, sessionData) => {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.put(`${API_URL}/sessions/${sessionId}`, sessionData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data;
+    },
+
+    // Delete session
+    deleteSession: async (sessionId) => {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.delete(`${API_URL}/sessions/${sessionId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    },
+
+    // Get session statistics
+    getSessionStats: async () => {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.get(`${API_URL}/sessions/stats`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
     }
 };
 

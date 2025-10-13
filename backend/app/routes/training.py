@@ -4,7 +4,7 @@ import uuid
 import traceback
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, Response
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, decode_token
 from app.models import db
 from app.models.training_video import TrainingVideo
@@ -37,6 +37,98 @@ def allowed_file(filename):
 def test():
     """Test endpoint"""
     return jsonify({'message': 'Training routes working'}), 200
+
+# ==================== VIDEO ROUTES ====================
+
+@training_bp.route('/videos/<int:video_id>/stream', methods=['GET'])
+def stream_video(video_id):
+    """Stream video file - allows token in query param for video <src> tags"""
+    current_user_id = None
+    
+    try:
+        # Method 1: Try Authorization header (for API requests)
+        try:
+            verify_jwt_in_request()
+            current_user_id = get_current_user_id()
+            print(f">>> Authenticated via header: user {current_user_id}")
+        except Exception as header_error:
+            print(f">>> Header auth failed: {str(header_error)}")
+            
+            # Method 2: Try query parameter token (for <video> src tags)
+            token = request.args.get('token')
+            if not token:
+                print(">>> No token in query params either")
+                return jsonify({'message': 'No authentication token provided'}), 401
+            
+            try:
+                print(f">>> Attempting to decode token from query param")
+                decoded = decode_token(token)
+                current_user_id = int(decoded['sub'])
+                print(f">>> Authenticated via query param: user {current_user_id}")
+            except Exception as token_error:
+                print(f">>> Token decode failed: {str(token_error)}")
+                return jsonify({'message': 'Invalid authentication token'}), 401
+        
+        # Verify video belongs to user
+        video = TrainingVideo.query.filter_by(id=video_id, user_id=current_user_id).first()
+        
+        if not video:
+            print(f">>> Video {video_id} not found for user {current_user_id}")
+            return jsonify({'message': 'Video not found'}), 404
+        
+        # Check if file exists
+        if not os.path.exists(video.file_path):
+            print(f">>> Video file not found: {video.file_path}")
+            return jsonify({'message': 'Video file not found on server'}), 404
+        
+        print(f">>> Streaming video {video_id} from {video.file_path}")
+        
+        # Get file extension for proper MIME type
+        extension = video.filename.rsplit('.', 1)[1].lower() if '.' in video.filename else 'mp4'
+        mime_type = f'video/{extension}'
+        
+        # Support range requests for video seeking
+        range_header = request.headers.get('Range', None)
+        if not range_header:
+            return send_file(
+                video.file_path,
+                mimetype=mime_type,
+                as_attachment=False
+            )
+        
+        # Handle range requests for video seeking
+        size = os.path.getsize(video.file_path)
+        byte_start, byte_end = 0, size - 1
+        
+        if range_header:
+            byte_start = int(range_header.split('=')[1].split('-')[0])
+            if '-' in range_header.split('=')[1]:
+                end_part = range_header.split('=')[1].split('-')[1]
+                if end_part:
+                    byte_end = int(end_part)
+        
+        length = byte_end - byte_start + 1
+        
+        with open(video.file_path, 'rb') as f:
+            f.seek(byte_start)
+            data = f.read(length)
+        
+        rv = Response(
+            data,
+            206,
+            mimetype=mime_type,
+            direct_passthrough=True
+        )
+        rv.headers.add('Content-Range', f'bytes {byte_start}-{byte_end}/{size}')
+        rv.headers.add('Accept-Ranges', 'bytes')
+        rv.headers.add('Content-Length', str(length))
+        
+        return rv
+        
+    except Exception as e:
+        print(f"!!! Stream error: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'message': f'Stream failed: {str(e)}'}), 500
 
 @training_bp.route('/videos', methods=['GET'])
 @jwt_required()
@@ -150,31 +242,29 @@ def upload_video():
         unique_filename = f"user_{current_user_id}_{uuid.uuid4()}.{extension}"
         file_path = os.path.join(upload_dir, unique_filename)
         
-        print(f">>> Saving file to: {file_path}")
         # Save file
+        print(f">>> Saving to: {file_path}")
         file.save(file_path)
         file_size = os.path.getsize(file_path)
-        print(f">>> File saved, size: {file_size}")
         
-        # Create database entry
-        print(">>> Creating database entry...")
+        # Create database record
         new_video = TrainingVideo(
             user_id=current_user_id,
             technique_id=technique_id,
-            title=title,
-            filename=unique_filename,
-            file_path=file_path,
-            file_size=file_size,
             technique_name=technique_name,
             style=style,
+            title=title,
             description=description,
-            is_private=is_private,
-            analysis_status='pending'
+            filename=file.filename,
+            file_path=file_path,
+            file_size=file_size,
+            is_private=is_private
         )
         
         db.session.add(new_video)
         db.session.commit()
-        print(">>> Video saved to database successfully!")
+        
+        print(f">>> Video uploaded successfully with ID: {new_video.id}")
         
         return jsonify({
             'message': 'Video uploaded successfully',
@@ -182,10 +272,9 @@ def upload_video():
         }), 201
         
     except Exception as e:
-        db.session.rollback()
         print(f"!!! Upload error: {str(e)}")
-        print(f"!!! Error type: {type(e).__name__}")
         traceback.print_exc()
+        db.session.rollback()
         return jsonify({'message': f'Upload failed: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>', methods=['PUT'])
@@ -194,29 +283,28 @@ def update_video(video_id):
     """Update video metadata"""
     try:
         current_user_id = get_current_user_id()
+        data = request.get_json()
         
         video = TrainingVideo.query.filter_by(id=video_id, user_id=current_user_id).first()
         
         if not video:
             return jsonify({'message': 'Video not found'}), 404
         
-        data = request.get_json()
-        
-        # Update allowed fields
+        # Update fields
         if 'title' in data:
             video.title = data['title']
         if 'description' in data:
             video.description = data['description']
-        if 'is_private' in data:
-            video.is_private = data['is_private']
+        if 'technique_name' in data:
+            video.technique_name = data['technique_name']
+        if 'style' in data:
+            video.style = data['style']
         if 'technique_id' in data:
             video.technique_id = data['technique_id']
-            # Update technique name and style if technique_id is provided
-            if data['technique_id']:
-                technique = Technique.query.get(data['technique_id'])
-                if technique:
-                    video.technique_name = technique.name
-                    video.style = technique.style
+        if 'is_private' in data:
+            video.is_private = data['is_private']
+        
+        video.updated_at = datetime.utcnow()
         
         db.session.commit()
         
@@ -226,9 +314,9 @@ def update_video(video_id):
         }), 200
         
     except Exception as e:
-        db.session.rollback()
         print(f"Update error: {str(e)}")
         traceback.print_exc()
+        db.session.rollback()
         return jsonify({'message': f'Update failed: {str(e)}'}), 500
 
 @training_bp.route('/videos/<int:video_id>', methods=['DELETE'])
@@ -261,6 +349,8 @@ def delete_video(video_id):
         print(f"Delete error: {str(e)}")
         traceback.print_exc()
         return jsonify({'message': f'Delete failed: {str(e)}'}), 500
+
+# ==================== SESSION ROUTES ====================
 
 @training_bp.route('/sessions', methods=['GET'])
 @jwt_required()
@@ -482,47 +572,3 @@ def get_session_stats():
         print(f"Stats error: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': f'Failed to get stats: {str(e)}'}), 500
-    
-@training_bp.route('/videos/<int:video_id>/stream', methods=['GET'])
-def stream_video(video_id):
-    """Stream video file - allows token in query param for video <src> tags"""
-    try:
-        # Try to get token from Authorization header first
-        try:
-            verify_jwt_in_request()
-            current_user_id = get_current_user_id()
-        except:
-            # If header auth fails, try query parameter (for video src tags)
-            token = request.args.get('token')
-            if not token:
-                return jsonify({'message': 'No authentication token provided'}), 401
-            
-            try:
-                # Manually decode and verify the token
-                from flask_jwt_extended import decode_token
-                decoded = decode_token(token)
-                current_user_id = int(decoded['sub'])
-            except:
-                return jsonify({'message': 'Invalid token'}), 401
-        
-        video = TrainingVideo.query.filter_by(id=video_id, user_id=current_user_id).first()
-        
-        if not video:
-            return jsonify({'message': 'Video not found'}), 404
-        
-        if not os.path.exists(video.file_path):
-            return jsonify({'message': 'Video file not found on server'}), 404
-        
-        # Get file extension
-        extension = video.filename.rsplit('.', 1)[1].lower() if '.' in video.filename else 'webm'
-        
-        return send_file(
-            video.file_path,
-            mimetype=f'video/{extension}',
-            as_attachment=False
-        )
-        
-    except Exception as e:
-        print(f"Stream error: {str(e)}")
-        traceback.print_exc()
-        return jsonify({'message': f'Stream failed: {str(e)}'}), 500
