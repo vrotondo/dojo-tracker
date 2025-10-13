@@ -10,6 +10,7 @@ function TechniquesLibrary() {
     const navigate = useNavigate();
     const [techniques, setTechniques] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({
         style: '',
@@ -27,25 +28,37 @@ function TechniquesLibrary() {
     const loadTechniques = async () => {
         try {
             setLoading(true);
+            setError(null);
             const data = await getTechniques();
-            setTechniques(data.techniques);
+
+            // Ensure we have an array of techniques
+            if (data && Array.isArray(data.techniques)) {
+                setTechniques(data.techniques);
+            } else {
+                setTechniques([]);
+                console.warn('No techniques data received');
+            }
         } catch (err) {
             console.error('Error fetching techniques:', err);
+            setError('Failed to load techniques. Please try again.');
+            setTechniques([]);
         } finally {
             setLoading(false);
         }
     };
 
-    // Filter and search logic
+    // Filter and search logic - FIXED
     const getFilteredTechniques = () => {
         let filtered = [...techniques];
 
-        // Apply search
-        if (searchQuery) {
+        // Apply search with trim to handle whitespace
+        if (searchQuery && searchQuery.trim()) {
+            const searchLower = searchQuery.toLowerCase().trim();
             filtered = filtered.filter(tech =>
-                tech.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                tech.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                tech.style?.toLowerCase().includes(searchQuery.toLowerCase())
+                tech.name?.toLowerCase().includes(searchLower) ||
+                tech.description?.toLowerCase().includes(searchLower) ||
+                tech.style?.toLowerCase().includes(searchLower) ||
+                tech.category?.toLowerCase().includes(searchLower)
             );
         }
 
@@ -59,14 +72,17 @@ function TechniquesLibrary() {
         if (filters.category) {
             filtered = filtered.filter(tech => tech.category === filters.category);
         }
+        if (filters.favoritesOnly) {
+            filtered = filtered.filter(tech => tech.is_favorite === true);
+        }
 
         // Apply sorting
         filtered.sort((a, b) => {
             switch (sortBy) {
                 case 'name-asc':
-                    return a.name.localeCompare(b.name);
+                    return (a.name || '').localeCompare(b.name || '');
                 case 'name-desc':
-                    return b.name.localeCompare(a.name);
+                    return (b.name || '').localeCompare(a.name || '');
                 case 'difficulty-asc':
                     const diffOrder = { 'Beginner': 1, 'Intermediate': 2, 'Advanced': 3 };
                     return (diffOrder[a.difficulty] || 0) - (diffOrder[b.difficulty] || 0);
@@ -104,17 +120,46 @@ function TechniquesLibrary() {
         setSortBy('name-asc');
     };
 
-    const handleClearSearch = () => {
-        setSearchQuery('');
-    };
-
+    // Loading state
     if (loading) {
         return (
             <div className="techniques-library">
                 <div className="library-header">
-                    <h1>📚 Technique Library</h1>
+                    <div className="header-content">
+                        <h1>📚 Technique Library</h1>
+                    </div>
                 </div>
-                <div className="loading">Loading techniques...</div>
+                <div className="loading">
+                    <div className="loading-spinner"></div>
+                    <p>Loading techniques...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="techniques-library">
+                <div className="library-header">
+                    <div className="header-content">
+                        <h1>📚 Technique Library</h1>
+                    </div>
+                    <button
+                        className="back-btn"
+                        onClick={() => navigate('/dashboard')}
+                    >
+                        ← Back to Dashboard
+                    </button>
+                </div>
+                <div className="error-state">
+                    <div className="error-icon">⚠️</div>
+                    <h3>Error Loading Techniques</h3>
+                    <p>{error}</p>
+                    <button className="retry-btn" onClick={loadTechniques}>
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
@@ -180,6 +225,7 @@ function TechniquesLibrary() {
                             className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                             onClick={() => setViewMode('grid')}
                             aria-label="Grid view"
+                            title="Grid view"
                         >
                             ⊞
                         </button>
@@ -187,6 +233,7 @@ function TechniquesLibrary() {
                             className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                             onClick={() => setViewMode('list')}
                             aria-label="List view"
+                            title="List view"
                         >
                             ☰
                         </button>
