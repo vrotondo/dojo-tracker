@@ -1,0 +1,639 @@
+[
+    {
+        "name": "Front Kick (Mae Geri)",
+        "description": "A fundamental forward kick executed with the ball of the foot, targeting the opponent's midsection. One of the first techniques learned in Karate.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Kicks"
+    },
+    {
+        "name": "Roundhouse Kick (Mawashi Geri)",
+        "description": "A circular kick that strikes with the instep or shin, one of the most powerful and versatile kicks in martial arts.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Side Kick (Yoko Geri)",
+        "description": "A powerful linear kick delivered sideways with the heel, excellent for maintaining distance and generating power.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Back Kick (Ushiro Geri)",
+        "description": "A rear kick executed by thrusting the heel backwards, one of the most powerful kicks when properly executed.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Crescent Kick (Mikazuki Geri)",
+        "description": "A sweeping kick that moves in a crescent arc, useful for warm-ups and developing flexibility.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Kicks"
+    },
+    {
+        "name": "Axe Kick (Kakato Geri)",
+        "description": "A downward striking kick where the leg is raised high and brought down like an axe, hitting with the heel.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Hook Kick",
+        "description": "A deceptive kick that appears to miss before snapping back to strike with the heel, requires good flexibility.",
+        "style": "Karate",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Spinning Back Kick",
+        "description": "A powerful spinning variation of the back kick, generating momentum through the spin for devastating impact.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Spinning Hook Kick",
+        "description": "An advanced spinning kick also known as a spinning whip kick, used for powerful head-level strikes.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Tornado Kick",
+        "description": "A jumping, spinning kick that combines a 360-degree spin with a roundhouse kick, spectacular and effective.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Flying Side Kick",
+        "description": "A jumping side kick executed while airborne, used to strike high targets or cover distance quickly.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Double Kick",
+        "description": "Two kicks executed in quick succession with the same leg, testing balance and speed.",
+        "style": "Taekwondo",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Low Kick",
+        "description": "A kick aimed at the opponent's leg, typically the thigh or calf, used to damage mobility and set up combinations.",
+        "style": "Muay Thai",
+        "difficulty": "Beginner",
+        "category": "Kicks"
+    },
+    {
+        "name": "Teep (Push Kick)",
+        "description": "A forward pushing kick using the ball of the foot to create distance and disrupt the opponent's balance.",
+        "style": "Muay Thai",
+        "difficulty": "Beginner",
+        "category": "Kicks"
+    },
+    {
+        "name": "Switch Kick",
+        "description": "A deceptive kick where you switch stance mid-motion to deliver a powerful roundhouse kick.",
+        "style": "Muay Thai",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Question Mark Kick",
+        "description": "A deceptive kick that starts low like a teep but snaps up high like a roundhouse to the head.",
+        "style": "Muay Thai",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Oblique Kick",
+        "description": "A linear kick to the opponent's knee, used to disrupt structure and damage the leg.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Calf Kick",
+        "description": "A low roundhouse kick targeting the calf muscle, extremely effective in modern MMA.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Jab",
+        "description": "A quick, straight punch with the lead hand, the most important punch in boxing for measuring distance.",
+        "style": "Boxing",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Cross",
+        "description": "A powerful straight punch thrown with the rear hand, one of the most damaging punches in boxing.",
+        "style": "Boxing",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Hook",
+        "description": "A semi-circular punch thrown with either hand, targeting the side of the opponent's head or body.",
+        "style": "Boxing",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Uppercut",
+        "description": "An upward punch from a crouched position targeting the chin or solar plexus, devastating at close range.",
+        "style": "Boxing",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Overhand",
+        "description": "A looping punch thrown over the opponent's guard, sacrificing some speed for power and angle.",
+        "style": "Boxing",
+        "difficulty": "Advanced",
+        "category": "Strikes"
+    },
+    {
+        "name": "Jab-Cross Combination",
+        "description": "The most fundamental boxing combination: lead jab followed immediately by rear cross.",
+        "style": "Boxing",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Hook-Cross-Hook",
+        "description": "A three-punch combination that changes angles and keeps the opponent guessing.",
+        "style": "Boxing",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Elbow Strike (Sok)",
+        "description": "A close-range strike using the point of the elbow, one of the hardest weapons in Muay Thai.",
+        "style": "Muay Thai",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Flying Knee (Kao Loi)",
+        "description": "An explosive jumping knee strike aimed at the opponent's head or body, signature Muay Thai technique.",
+        "style": "Muay Thai",
+        "difficulty": "Advanced",
+        "category": "Strikes"
+    },
+    {
+        "name": "Knee Strike (Kao)",
+        "description": "A powerful strike using the knee, devastating at close range especially in the clinch.",
+        "style": "Muay Thai",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Spinning Elbow",
+        "description": "A spinning strike with the elbow that can generate knockout power from an unexpected angle.",
+        "style": "Muay Thai",
+        "difficulty": "Advanced",
+        "category": "Strikes"
+    },
+    {
+        "name": "Straight Punch (Choku Zuki)",
+        "description": "A direct punch executed with hip rotation, fundamental Karate striking technique.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Reverse Punch (Gyaku Zuki)",
+        "description": "A powerful punch thrown with the rear hand while stepping forward, core Karate technique.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Backfist Strike (Uraken)",
+        "description": "A snapping strike using the back of the fist, quick and effective for scoring points.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Spinning Backfist",
+        "description": "A spinning variation of the backfist that generates power through rotation.",
+        "style": "Karate",
+        "difficulty": "Advanced",
+        "category": "Strikes"
+    },
+    {
+        "name": "Hammer Fist",
+        "description": "A downward strike using the bottom of a closed fist, useful in ground fighting and self-defense.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Superman Punch",
+        "description": "A deceptive aerial punch where you fake a kick and throw a punch while jumping.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Advanced",
+        "category": "Strikes"
+    },
+    {
+        "name": "Palm Strike",
+        "description": "A strike using the heel of the palm instead of a closed fist, safer for the hand in self-defense.",
+        "style": "Krav Maga",
+        "difficulty": "Beginner",
+        "category": "Strikes"
+    },
+    {
+        "name": "Rising Block (Age Uke)",
+        "description": "An upward block used to defend against overhead attacks, fundamental Karate defensive technique.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Blocks"
+    },
+    {
+        "name": "Middle Block (Uchi Uke)",
+        "description": "An inside sweeping block that deflects attacks to the midsection using the forearm.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Blocks"
+    },
+    {
+        "name": "Lower Block (Gedan Barai)",
+        "description": "A downward sweeping block used to defend against low attacks to the legs or midsection.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Blocks"
+    },
+    {
+        "name": "Knife Hand Block (Shuto Uke)",
+        "description": "A block using the edge of the open hand, can also be used as a strike.",
+        "style": "Karate",
+        "difficulty": "Intermediate",
+        "category": "Blocks"
+    },
+    {
+        "name": "X-Block",
+        "description": "A cross-armed block used against powerful overhead attacks, crossing the wrists in an X shape.",
+        "style": "Karate",
+        "difficulty": "Beginner",
+        "category": "Blocks"
+    },
+    {
+        "name": "Parry",
+        "description": "A deflecting block that redirects the opponent's strike rather than stopping it directly.",
+        "style": "Boxing",
+        "difficulty": "Intermediate",
+        "category": "Blocks"
+    },
+    {
+        "name": "Slip",
+        "description": "A defensive movement where you rotate your body to avoid a punch without blocking.",
+        "style": "Boxing",
+        "difficulty": "Intermediate",
+        "category": "Blocks"
+    },
+    {
+        "name": "Bob and Weave",
+        "description": "A defensive movement combining ducking and lateral movement to evade punches.",
+        "style": "Boxing",
+        "difficulty": "Advanced",
+        "category": "Blocks"
+    },
+    {
+        "name": "Hip Throw (O Goshi)",
+        "description": "A fundamental Judo throw using hip rotation and leverage to throw the opponent over your hip.",
+        "style": "Judo",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Shoulder Throw (Seoi Nage)",
+        "description": "A classic Judo throw pulling the opponent over your shoulder using arm control and hip movement.",
+        "style": "Judo",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Foot Sweep (De Ashi Barai)",
+        "description": "A sweep that catches the opponent's foot as they step, disrupting balance and causing a fall.",
+        "style": "Judo",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Inner Thigh Throw (Uchi Mata)",
+        "description": "A powerful Judo throw using the inner thigh to lift and throw the opponent.",
+        "style": "Judo",
+        "difficulty": "Advanced",
+        "category": "Throws"
+    },
+    {
+        "name": "Outer Reap (Osoto Gari)",
+        "description": "A reaping throw that sweeps the opponent's leg from outside while pushing their upper body.",
+        "style": "Judo",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Single Leg Takedown",
+        "description": "A wrestling takedown grabbing one of the opponent's legs and driving them to the ground.",
+        "style": "Wrestling",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Double Leg Takedown",
+        "description": "A powerful wrestling takedown grabbing both legs and driving forward to take the opponent down.",
+        "style": "Wrestling",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Blast Double",
+        "description": "An explosive variation of the double leg where you penetrate deeply and lift the opponent.",
+        "style": "Wrestling",
+        "difficulty": "Advanced",
+        "category": "Throws"
+    },
+    {
+        "name": "High Crotch Takedown",
+        "description": "A wrestling takedown targeting the opponent's inner thigh area while controlling their upper body.",
+        "style": "Wrestling",
+        "difficulty": "Intermediate",
+        "category": "Throws"
+    },
+    {
+        "name": "Armbar (Juji Gatame)",
+        "description": "A joint lock submission that hyperextends the elbow by isolating the arm and applying pressure.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Rear Naked Choke",
+        "description": "A chokehold applied from behind using the forearm to compress the carotid arteries.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Triangle Choke (Sankaku Jime)",
+        "description": "A leg choke where you trap the opponent's head and arm in a triangle shape with your legs.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Guillotine Choke",
+        "description": "A front choke wrapping your arm around the opponent's neck and squeezing, common in MMA.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Kimura Lock",
+        "description": "A shoulder lock that rotates the arm behind the back, named after judoka Masahiko Kimura.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Americana Lock",
+        "description": "A shoulder lock similar to the Kimura but applied from the opposite side, often from mount position.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Omoplata",
+        "description": "A shoulder lock using your legs to control and submit the opponent by rotating their shoulder.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Heel Hook",
+        "description": "A dangerous leg lock that attacks the heel and knee by rotating the foot.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Ankle Lock",
+        "description": "A submission that hyperextends the ankle by applying pressure across the Achilles tendon.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Knee Bar",
+        "description": "A leg lock that hyperextends the knee joint, highly effective but requires careful control.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Guard Position",
+        "description": "A ground position where you're on your back with legs controlling the opponent, fundamental in BJJ.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Closed Guard",
+        "description": "Guard position with legs locked around the opponent's back, providing maximum control.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Open Guard",
+        "description": "Guard position with legs not locked, using hooks and grips to control the opponent.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Half Guard",
+        "description": "A position where you control one of the opponent's legs between yours, defensive yet versatile.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Mount Position",
+        "description": "A dominant top position sitting on the opponent's torso, prime position for strikes and submissions.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Side Control",
+        "description": "A dominant top position perpendicular to the opponent, excellent for control and transitions.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Back Mount",
+        "description": "The most dominant position in BJJ, mounted on the opponent's back with both hooks in.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Knee on Belly",
+        "description": "A pressure position with knee on the opponent's stomach, uncomfortable and controls movement.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Sprawl",
+        "description": "A defensive technique against takedowns, throwing legs back and driving weight down.",
+        "style": "Wrestling",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Clinch",
+        "description": "A standing grappling position where fighters control each other, core to Muay Thai fighting.",
+        "style": "Muay Thai",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Plum Clinch",
+        "description": "A Muay Thai clinch controlling the opponent's head with both hands behind the neck.",
+        "style": "Muay Thai",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Guard Pass",
+        "description": "Technique to pass the opponent's guard and achieve a dominant top position.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Sweep",
+        "description": "A technique from bottom position to reverse and get on top of the opponent.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Shrimp (Hip Escape)",
+        "description": "A fundamental movement escaping from bottom positions by moving hips away.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Bridge",
+        "description": "An escape technique lifting the hips explosively to create space or escape from bottom.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Technical Stand-Up",
+        "description": "A safe method to stand up from the ground while maintaining guard against strikes.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Beginner",
+        "category": "Grappling"
+    },
+    {
+        "name": "Wall Walk",
+        "description": "A technique to stand up from the ground using the cage wall for support in MMA.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Grappling"
+    },
+    {
+        "name": "Ground and Pound",
+        "description": "Striking technique from top position, combining positional control with strikes.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Elbow from Guard",
+        "description": "Defensive elbows thrown from guard position to attack the opponent on top.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Strikes"
+    },
+    {
+        "name": "Upkick",
+        "description": "A kick thrown upwards from bottom position targeting the head of a standing opponent.",
+        "style": "Mixed Martial Arts",
+        "difficulty": "Intermediate",
+        "category": "Kicks"
+    },
+    {
+        "name": "Imanari Roll",
+        "description": "A flying entry into leg lock position, advanced and risky submission technique.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Cartwheel Kick",
+        "description": "An acrobatic kick performed during a cartwheel motion, spectacular and effective.",
+        "style": "Capoeira",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Berimbolo",
+        "description": "A spinning back take technique from De La Riva guard, modern sport BJJ technique.",
+        "style": "Brazilian Jiu-Jitsu",
+        "difficulty": "Advanced",
+        "category": "Grappling"
+    },
+    {
+        "name": "Rolling Thunder Kick",
+        "description": "A rolling backward kick executed while doing a backward roll, dynamic and unpredictable.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Bicycle Kick",
+        "description": "An inverted kick performed while falling backward, both legs kicking alternately.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Butterfly Kick",
+        "description": "An aerial kick where you twist horizontally in the air like a butterfly, used in demonstrations.",
+        "style": "Wushu",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "540 Kick",
+        "description": "A spinning kick where you spin 540 degrees before striking, extremely flashy technique.",
+        "style": "Taekwondo",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    },
+    {
+        "name": "Scorpion Kick",
+        "description": "An inverted kick where you arch your back and kick forward over your head.",
+        "style": "Capoeira",
+        "difficulty": "Advanced",
+        "category": "Kicks"
+    }
+]

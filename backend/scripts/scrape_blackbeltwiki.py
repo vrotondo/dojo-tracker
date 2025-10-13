@@ -28,42 +28,56 @@ class BlackBeltWikiScraper:
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Find all links on the page
-            links = soup.find_all('a', href=True)
+            # Find the main content area - technique links are usually in lists or content divs
+            content = soup.find('div', class_='entry-content') or soup.find('article') or soup
+            
+            # Find all links in the content
+            links = content.find_all('a', href=True)
             
             for link in links:
                 href = link.get('href')
                 text = link.get_text(strip=True)
                 
-                # Skip empty links or very short text
+                # Skip empty text or very short
                 if not text or len(text) < 3:
                     continue
                 
-                # Skip navigation/footer/header links
-                skip_keywords = ['home', 'about', 'contact', 'privacy', 'terms', 
-                                'copyright', 'facebook', 'twitter', 'instagram',
-                                'youtube', 'books', 'shop', 'equipment', 'disclaimer']
-                if any(keyword in text.lower() for keyword in skip_keywords):
+                # Skip obvious non-technique links (in text, not href)
+                skip_text_keywords = ['click here', 'read more', 'see also', 'main article',
+                                     'category:', 'home', 'back to', 'return to']
+                if any(keyword in text.lower() for keyword in skip_text_keywords):
                     continue
                 
-                # Look for technique-related links
+                # Must be an internal link
+                if not href.startswith('/') and 'blackbeltwiki.com' not in href:
+                    continue
+                
+                # Convert to full URL
                 full_url = urljoin(self.base_url, href)
                 
-                # Must be from blackbeltwiki.com domain
-                if 'blackbeltwiki.com' not in full_url:
+                # Skip navigation/system pages in URL
+                skip_url_keywords = ['wp-content', 'wp-admin', 'wp-includes', 
+                                    'feed', 'rss', 'xmlrpc', 'wp-json',
+                                    'author', 'tag', 'category', 'page',
+                                    'search', 'login', 'register']
+                if any(keyword in href.lower() for keyword in skip_url_keywords):
                     continue
                 
-                # Filter for technique pages - these are typically single-word or hyphenated slugs
-                # Exclude category/list pages
-                if href.startswith('/') and href.count('/') <= 2:
-                    # Exclude the main category pages we're already scraping
-                    exclude = ['/kicks', '/punches', '/blocks', '/grappling', '/joint-locks',
-                              '/karate-kicks', '/taekwondo-kicks', '/muay-thai-kicks',
-                              '/martial-arts-', '/home', '/categories']
-                    
-                    if not any(ex in href for ex in exclude):
-                        # This looks like a technique page!
-                        yield {'name': text, 'url': full_url}
+                # Skip the main category pages themselves
+                category_pages = ['/kicks', '/punches', '/blocks', '/grappling', '/joint-locks',
+                                 '/karate-kicks', '/karate-techniques', '/taekwondo-kicks',
+                                 '/taekwondo-techniques', '/muay-thai-kicks', '/boxing-techniques',
+                                 '/mixed-martial-arts', '/judo', '/jiu-jitsu',
+                                 '/home', '/about', '/contact', '/privacy', '/terms']
+                
+                # Only skip if it's EXACTLY these pages
+                if href.rstrip('/') in category_pages:
+                    continue
+                
+                # If we got here, it's probably a technique page
+                # Technique pages are typically: /technique-name (one level deep)
+                if href.startswith('/') and href.count('/') >= 1:
+                    yield {'name': text, 'url': full_url}
             
             time.sleep(1)  # Be polite to the server
             
